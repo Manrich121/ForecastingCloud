@@ -51,8 +51,8 @@ def getFilelist(filepath):
             
     return files_out
 
-def writeCSV(filename, data=[]):
-    with open(filename, 'wb') as csvfile:
+def writeCSV(filename, data=[], mode='wb'):
+    with open(filename, mode) as csvfile:
         csvwriter = csv.writer(csvfile, delimiter=',')
         for row in data:
             csvwriter.writerow(row)
