@@ -4,11 +4,14 @@ Created on 12 Sep 2014
 @author: Manrich
 '''
 
-from matplotlib import pyplot as plt
-import numpy as np
-import fileutils
+import os
 
-chosen = ['4155527081','329150663','3938719206','351618647','431052910','257348783',
+from matplotlib import pyplot as plt
+
+import fileutils
+import numpy as np
+
+machines = ['4155527081','329150663','3938719206','351618647','431052910','257348783',
      '5655258253','3550322224','1303745','3894543095','336025676','3405236527',
      '431081448','84899647','1268205','778602858','351621284','317488701',
      '2595183881','621588868','4304743890','3938826162','351635981',
@@ -28,5 +31,23 @@ chosen = ['4155527081','329150663','3938719206','351618647','431052910','2573487
 
 
 if __name__ == '__main__':
-    data = fileutils.iter_loadtxt("../data/sampledata.csv", ',', skiprows=0, dtype=np.float)
-#     data = fileutils.iter_loadtxt("D:/googleClusterData/clusterdata-2011-1/task_usage/part-00000-of-00500.csv.gz", ',', skiprows=0, dtype=np.float)
+    
+    datafiles = fileutils.getFilelist("D:/googleClusterData/clusterdata-2011-1/task_usage")
+    machineUsage = {}
+    
+    for machine in machines:
+        machineUsage[machine] = []
+    
+    for datafile in datafiles:
+        print datafile
+        for row in fileutils.getCsvRows(datafile):
+            curMachine = row[4]
+            if curMachine in machines:
+                machineUsage[curMachine].append(row)
+    
+    for machine in machineUsage.keys():
+        fileutils.writeCSV("d:/data/perMachine/"+machine+".csv", machineUsage[machine])
+   
+#     print fileutils.getFilelist('D:/googleClusterData/clusterdata-2011-1/task_usage')
+    
+            

@@ -3,13 +3,17 @@ Created on 12 Sep 2014
 
 @author: Manrich
 '''
-import numpy as np
+import csv
 import gzip
+import os
+
+import numpy as np
+
 
 def iter_loadtxt(filename, delimiter=',', skiprows=0, dtype=np.float):
     def iter_func():
         if filename.endswith('gz'):
-            infile = gzipopen(filename, 'r')
+            infile = gzip.open(filename, 'r')
         else:
             infile = open(filename, 'r')
         for _ in range(skiprows):
@@ -27,3 +31,30 @@ def iter_loadtxt(filename, delimiter=',', skiprows=0, dtype=np.float):
     data = np.fromiter(iter_func(), dtype=dtype)
     data = data.reshape((-1, iter_loadtxt.rowlength))
     return data
+
+
+def getCsvRows(filename):
+    if filename.endswith('gz'):
+        csvfile = gzip.open(filename, 'rb')
+    else:
+        csvfile = open(filename, "rb")
+    datareader = csv.reader(csvfile)
+    for row in datareader:
+        yield row
+
+def getFilelist(filepath):
+    files_out = []
+    
+    for root, _ ,files in os.walk(filepath):
+        for file in files:
+            files_out.append(root+'/'+ file)
+            
+    return files_out
+
+def writeCSV(filename, data=[]):
+    with open(filename, 'wb') as csvfile:
+        csvwriter = csv.writer(csvfile, delimiter=',')
+        for row in data:
+            csvwriter.writerow(row)
+        
+    
