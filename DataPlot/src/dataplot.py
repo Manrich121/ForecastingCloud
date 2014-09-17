@@ -27,9 +27,7 @@ machines = ['4155527081','329150663','3938719206','351618647','431052910','25734
      '1664088958','905062','2549393774','660404','3349189108','711355',
      '257395954','323143631','6640087','1695367','336045944','3858945898', '4815459946']
 
-
-if __name__ == '__main__':
-    
+def extractMachineData():
     datafiles = fileutils.getFilelist("D:/googleClusterData/clusterdata-2011-1/task_usage")
     machineUsage = {}
     
@@ -56,6 +54,30 @@ if __name__ == '__main__':
         for machine in machines:
             machineUsage[machine] = []
    
-#     print fileutils.getFilelist('D:/googleClusterData/clusterdata-2011-1/task_usage')
+if __name__ == '__main__':
+    cpuDataPerTask = np.genfromtxt("d:/data/perMachine/3858945898.csv", dtype=np.float, delimiter=',', skiprows=0, usecols=(0,1,5))
+
+    strTime = 600e6
+    endTime = strTime + 300e6
+    globalEndTime = 2506200000000
     
+    numberOfRows = globalEndTime/300e6
+    aggregatedData = np.zeros([numberOfRows, 2], dtype=float)
+    x = 0
+    
+    aggregatedData[x,0] = strTime
+    
+    for row in cpuDataPerTask[:]:
+        if (row[0]>=strTime and row[0]<endTime):
+            aggregatedData[x,1] += row[2]
+        else:
+            strTime = endTime
+            endTime += 300e6
+            x +=1
+            aggregatedData[x,0] = strTime
+
+#    Trim zero lines
+    aggregatedData =  aggregatedData[~np.all(aggregatedData == 0, axis=1)]
             
+    plt.plot(aggregatedData[:,0],aggregatedData[:,1])
+    plt.show()
