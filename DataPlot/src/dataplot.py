@@ -53,10 +53,12 @@ def extractMachineData():
         machineUsage.clear()
         for machine in machines:
             machineUsage[machine] = []
-   
-if __name__ == '__main__':
-    cpuDataPerTask = np.genfromtxt("d:/data/perMachine/3858945898.csv", dtype=np.float, delimiter=',', skiprows=0, usecols=(0,1,5))
 
+def readAndAggregateCpu(filename, outputDir):
+    cpuDataPerTask = np.genfromtxt(filename, dtype=np.float, delimiter=',', skiprows=0, usecols=(0,5))
+
+    fileCsv = filename.split('/')[-1]
+    
     strTime = 600e6
     endTime = strTime + 300e6
     globalEndTime = 2506200000000
@@ -69,7 +71,7 @@ if __name__ == '__main__':
     
     for row in cpuDataPerTask[:]:
         if (row[0]>=strTime and row[0]<endTime):
-            aggregatedData[x,1] += row[2]
+            aggregatedData[x,1] += row[1]
         else:
             strTime = endTime
             endTime += 300e6
@@ -78,6 +80,13 @@ if __name__ == '__main__':
 
 #    Trim zero lines
     aggregatedData =  aggregatedData[~np.all(aggregatedData == 0, axis=1)]
-            
-    plt.plot(aggregatedData[:,0],aggregatedData[:,1])
-    plt.show()
+    
+    fileutils.writeCSV(outputDir+'/cpuRate_'+fileCsv, aggregatedData)
+    
+if __name__ == '__main__':
+    
+    for file in fileutils.getFilelist("D:/data/perMachine"):
+        print file
+        readAndAggregateCpu(file, "d:/data/cpuRate")
+#     plt.plot(aggregatedData[:,0],aggregatedData[:,1])
+#     plt.show()
