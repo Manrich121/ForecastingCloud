@@ -54,7 +54,7 @@ def extractMachineData():
         for machine in machines:
             machineUsage[machine] = []
 
-def readAndAggregateCpu(filename, outputDir):
+def readAndAggregateCpuRate(filename, outputDir):
     cpuDataPerTask = np.genfromtxt(filename, dtype=np.float, delimiter=',', skiprows=0, usecols=(0,5))
 
     fileCsv = filename.split('/')[-1]
@@ -77,16 +77,25 @@ def readAndAggregateCpu(filename, outputDir):
             endTime += 300e6
             x +=1
             aggregatedData[x,0] = strTime
-
-#    Trim zero lines
-    aggregatedData =  aggregatedData[~np.all(aggregatedData == 0, axis=1)]
-    
+            
+    while x < numberOfRows:
+        strTime = endTime
+        endTime += 300e6
+        aggregatedData[x,0] = strTime
+        x +=1
+        
     fileutils.writeCSV(outputDir+'/cpuRate_'+fileCsv, aggregatedData)
+
+def readAndWriteAllCpuRate():
+    for f in fileutils.getFilelist("D:/data/perMachine"):
+        print f
+        readAndAggregateCpuRate(f, "d:/data/cpuRate")
     
 if __name__ == '__main__':
     
-    for file in fileutils.getFilelist("D:/data/perMachine"):
-        print file
-        readAndAggregateCpu(file, "d:/data/cpuRate")
-#     plt.plot(aggregatedData[:,0],aggregatedData[:,1])
-#     plt.show()
+    data = np.genfromtxt("d:/data/cpuRate/cpuRate_4815459946.csv", delimiter=',', usecols=(0,1))
+    plt.plot(data[:,0]/1e6,data[:,1])
+    plt.title("Machine 4815459946's CPU rate over 29 day period")
+    plt.xlabel("Time (s)")
+    plt.ylabel("CPU rate (cpu seconds / second)")
+    plt.show()
