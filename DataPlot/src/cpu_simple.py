@@ -11,29 +11,21 @@ import holtwinters as hw
 
 if __name__ == '__main__':
     data = np.genfromtxt("d:/data/cpuRate/cpuRate_4815459946.csv", delimiter=',', usecols=(0,1))
+    '''
+        Input window = 250 hours = 250*12 = 3000 
+        look ahead window = 5 hours = 5*12 = 60
+        one day sample = 24hours*60min /5min = 288
+    '''
+    input_window = 3000
+    predic_window = 60
+    one_day_samples = 288
     
+    Y = data[:input_window,1].tolist()
+    predictions, alpha, beta, gamma, rmse = hw.additive(Y, m=one_day_samples, fc=predic_window)
     
-    day_in_sec = 1440
-    num_of_samples = 300
-    offset = 600e6
-    num_of_pred = 100
-    observations = data[:num_of_samples,1].tolist()
-    x = data[:num_of_samples+num_of_pred,0]-offset
-    x = x / 1e6
-    x = x.tolist()
-        
-    forecast, alpha, beta, gamma, rmse = hw.additive(observations, m=288, fc=num_of_pred)
+    real = data[input_window:input_window+predic_window,1]
     
-    prediction = []
-    for _ in range(0,len(observations)):
-        prediction.append(None)
-        
-    for i in range(0, len(forecast)):
-        prediction.append(forecast[i])
-        observations.append(None)
-    
-    data = data[:num_of_samples+num_of_pred,1].tolist()
-        
-    plt.plot(x, data)
-    plt.plot(x, prediction)
+    plt.plot(real)
+    plt.plot(predictions)
+   
     plt.show()
