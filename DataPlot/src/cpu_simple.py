@@ -21,19 +21,6 @@ if __name__ == '__main__':
     predic_window = 60
     one_day_samples = 288
     real = data[input_window:input_window+predic_window,1]
-    
-
-#     fs = 1/300.0
-#     n = input_window
-#     k = arange(n)
-#     T = n/fs
-#     frq = k/T
-#     frq = frq[range(n/2)]
-#     
-#     fourier = fft(data[:input_window,1])/n
-#     fourier = fourier[range(n/2)]
-# #     plt.plot(frq,abs(fourier),'r')
-#     print abs(fourier)
         
     Y = data[:input_window,1].tolist()
     forecast, alpha, beta, gamma, rmse = hw.additive(Y, m=300, fc=predic_window)
