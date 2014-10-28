@@ -140,7 +140,7 @@ def additive(x, m, fc, alpha = None, beta = None, gamma = None):
     fc: Number of samples ahead to predict
     alpha: Smoothing constant, will be estimate if None
     beta: Trend smoothing constant, will be estimated if None
-    gamma: Seasonal smoothin constant, will be estimated if None
+    gamma: Seasonal smoothing constant, will be estimated if None
     
     Return
     ---------

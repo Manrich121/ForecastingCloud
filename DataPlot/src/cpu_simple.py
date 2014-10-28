@@ -23,7 +23,7 @@ if __name__ == '__main__':
     real = data[input_window:input_window+predic_window,1]
         
     Y = data[:input_window,1].tolist()
-    forecast, alpha, beta, gamma, rmse = hw.additive(Y, m=300, fc=predic_window)
+    forecast, alpha, beta, gamma, rmse = hw.additive(Y, m=288, fc=predic_window)
     
     plt.plot(real)
     plt.plot(forecast)

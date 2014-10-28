@@ -6,8 +6,10 @@ Created on 12 Sep 2014
 
 from matplotlib import pyplot as plt
 
+from StringIO import StringIO
 import fileutils
 import numpy as np
+from test.test_os import resource
 
 machines = ['4155527081','329150663','3938719206','351618647','431052910','257348783',
      '5655258253','3550322224','1303745','3894543095','336025676','3405236527',
@@ -53,10 +55,20 @@ def extractMachineData():
         machineUsage.clear()
         for machine in machines:
             machineUsage[machine] = []
-
-def readAndAggregateCpuRate(filename, outputDir):
-    cpuDataPerTask = np.genfromtxt(filename, dtype=np.float, delimiter=',', skiprows=0, usecols=(0,5))
-
+'''
+    Extracts a resource type from a google cluster data file
+'''
+def readAndAggregate(filename, outputDir, resource='cpu'):
+    colomn = 1 # start time
+    if resource == 'cpu':
+        colomn = 5;
+    elif resource == 'memory':
+        colomn = 7
+    elif resource == 'diskIO':
+        colomn = 11 
+    
+    resourcePerTask = np.genfromtxt(filename, delimiter=',', skiprows=0, usecols=(0,colomn), filling_values = '0')
+    
     fileCsv = filename.split('/')[-1]
     
     strTime = 600e6
@@ -69,9 +81,12 @@ def readAndAggregateCpuRate(filename, outputDir):
     
     aggregatedData[x,0] = strTime
     
-    for row in cpuDataPerTask[:]:
-        if (row[0]>=strTime and row[0]<endTime):
-            aggregatedData[x,1] += row[1]
+    for row in resourcePerTask[:]:
+        time = np.float_(row[0])
+        if (time>=strTime and time<endTime):
+            row_f = np.float_(row[1])
+            aggregatedData[x,1] += row_f
+            
         else:
             strTime = endTime
             endTime += 300e6
@@ -84,18 +99,18 @@ def readAndAggregateCpuRate(filename, outputDir):
         aggregatedData[x,0] = strTime
         x +=1
         
-    fileutils.writeCSV(outputDir+'/cpuRate_'+fileCsv, aggregatedData)
+    fileutils.writeCSV(outputDir+'/' + resource + '_' +fileCsv, aggregatedData)
 
 def readAndWriteAllCpuRate():
     for f in fileutils.getFilelist("D:/data/perMachine"):
         print f
-        readAndAggregateCpuRate(f, "d:/data/cpuRate")
+        readAndAggregate(f, "d:/data/cpuRate", 'cpu')
     
 if __name__ == '__main__':
-    
-    data = np.genfromtxt("d:/data/cpuRate/cpuRate_4815459946.csv", delimiter=',', usecols=(0,1))
+         
+    data = np.genfromtxt("d:/data/memory/memory_907812.csv", delimiter=',', usecols=(0,1))
     plt.plot(data[:,0]/1e6,data[:,1])
-    plt.title("Machine 4815459946's CPU rate over 29 day period")
+    plt.title("Machine 907812's diskIO over 29 day period")
     plt.xlabel("Time (s)")
-    plt.ylabel("CPU rate (cpu seconds / second)")
+    plt.ylabel("diskIO time")
     plt.show()
