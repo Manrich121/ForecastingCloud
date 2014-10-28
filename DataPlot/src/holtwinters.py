@@ -8,8 +8,9 @@
 from sys import exit
 from math import sqrt
 from numpy import array
+import numpy as np
 from scipy.optimize import fmin_l_bfgs_b
- 
+import statsmodels.api as sm
 
 def RMSE(params, *args):
     '''
@@ -129,7 +130,7 @@ def linear(x, fc, alpha = None, beta = None):
     return Y[-fc:], alpha, beta, rmse
   
 
-def additive(x, m, fc, alpha = None, beta = None, gamma = None):
+def additive(x, fc, alpha = None, beta = None, gamma = None):
     '''
     Holt-Winters method for data with trend and (roughly constant) seasonal variation
     
@@ -146,7 +147,9 @@ def additive(x, m, fc, alpha = None, beta = None, gamma = None):
     ---------
     Forecast, alpha, beta, gamma, RMSE
     '''
- 
+    
+#     Determine dominant season length in samples
+    m = findDominentSeason(x)
     Y = x[:]
  
     if (alpha == None or beta == None or gamma == None):
@@ -158,6 +161,7 @@ def additive(x, m, fc, alpha = None, beta = None, gamma = None):
         parameters = fmin_l_bfgs_b(RMSE, x0 = initial_values, args = (Y, type, m), bounds = boundaries, approx_grad = True)
         alpha, beta, gamma = parameters[0]
  
+#  Forecasting part:
     a = [sum(Y[0:m]) / float(m)]
     b = [(sum(Y[m:2 * m]) - sum(Y[0:m])) / m ** 2]
     s = [Y[i] - a[0] for i in range(m)]
@@ -221,3 +225,21 @@ def multiplicative(x, m, fc, alpha = None, beta = None, gamma = None):
     rmse = sqrt(sum([(m - n) ** 2 for m, n in zip(Y[:-fc], y[:-fc - 1])]) / len(Y[:-fc]))
  
     return Y[-fc:], alpha, beta, gamma, rmse
+'''
+    Finds the dominant season in samples
+    y: data
+    ignoreDC: set to include DC or not
+    
+'''
+def findDominentSeason(y, ignoreDC=True):
+    N = len(y)
+    yf = sm.tsa.stattools.periodogram(y)
+    xf = np.linspace(0,1,N/2) 
+
+    strIndex = 0
+    if ignoreDC:
+        strIndex = 1
+    
+    ibest = np.argmax(yf[strIndex:]) + strIndex
+    
+    return np.int_(np.round( 1.0/xf[ibest]))
