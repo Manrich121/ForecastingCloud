@@ -62,7 +62,7 @@ def fit(y, type='additive'):
         
         return [alpha, beta, gamma, m], rmse
 
-def predict(y, fc, modelparams, type='additive'):
+def predict(x, fc, modelparams, type='additive'):
     '''
     Forecasts fc samples into the future, using the model parameters corresponding to the model type
     
@@ -78,7 +78,7 @@ def predict(y, fc, modelparams, type='additive'):
     ----------
     Forecast: List of predicted values of length fc
     '''
-    Y = y[:]
+    Y = x[:]
     if type == 'linear':
         alpha, beta = modelparams[0], modelparams[1]
         a = [Y[0]]
@@ -126,7 +126,7 @@ def predict(y, fc, modelparams, type='additive'):
             s.append(gamma * (Y[i] / (a[i] + b[i])) + (1 - gamma) * s[i])
             y.append((a[i + 1] + b[i + 1]) * s[i + 1])
             
-    return Y[-fc:]
+    return x[-fc:]
 
 def linear(x, fc, alpha = None, beta = None):
     '''
@@ -174,7 +174,7 @@ def linear(x, fc, alpha = None, beta = None):
     return Y[-fc:], alpha, beta, rmse
   
 
-def additive(x, fc, alpha = None, beta = None, gamma = None):
+def additive(x, fc, m=None, alpha = None, beta = None, gamma = None):
     '''
     Holt-Winters method for data with trend and (roughly constant) seasonal variation
     
@@ -193,7 +193,8 @@ def additive(x, fc, alpha = None, beta = None, gamma = None):
     '''
     
 #     Determine dominant season length in samples
-    m = findDominentSeason(x)
+    if m==None:
+        m = findDominentSeason(x)
     Y = x[:]
  
     if (alpha == None or beta == None or gamma == None):

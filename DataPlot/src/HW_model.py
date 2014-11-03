@@ -87,7 +87,7 @@ class HW_model:
         ----------
         Forecast: List of predicted values of length fc
         '''
-        Y = self.data
+        Y = self.data[:]
         if self.type == 'linear':
             alpha, beta = self.alpha, self.beta
             a = [Y[0]]
