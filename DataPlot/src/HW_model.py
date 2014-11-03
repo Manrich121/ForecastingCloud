@@ -9,7 +9,7 @@ from math import sqrt
 from numpy import array
 import numpy as np
 from scipy.optimize import fmin_l_bfgs_b
-import statsmodels.api as sm
+import tsutils
 
 class HW_model:
     '''
@@ -52,7 +52,7 @@ class HW_model:
             return [self.alpha, self.beta], rmse
             
         elif self.type == 'additive':
-            self.m = self.findDominentSeason(y)
+            self.m = tsutils.findDominentSeason(y)
          
             initial_values = array([0.3, 0.1, 0.1])
             boundaries = [(0, 1), (0, 1), (0, 1)]
@@ -64,7 +64,7 @@ class HW_model:
             return [self.alpha, self.beta, self.gamma, self.m], rmse
             
         elif self.type == 'multiplicative':
-            self.m = self.findDominentSeason(y)
+            self.m = tsutils.findDominentSeason(y)
             
             initial_values = array([0.0, 1.0, 0.0])
             boundaries = [(0, 1), (0, 1), (0, 1)]
@@ -137,24 +137,6 @@ class HW_model:
                 
         return Y[-fc:]
     
-    def findDominentSeason(self, y, ignoreDC=True):
-        '''
-        Finds the dominant season in samples
-        y: data
-        ignoreDC: set to include DC component or not
-        '''
-        N = len(y)
-        yf = sm.tsa.stattools.periodogram(y)
-        xf = np.linspace(0,1,N/2) 
-    
-        strIndex = 0
-        if ignoreDC:
-            strIndex = 1
-        
-        ibest = np.argmax(yf[strIndex:N/2]) + strIndex
-    
-        return np.min([np.int_(np.round( 1.0/xf[ibest])), N])
-
     def RMSE(self,params, *args):
         '''
         Root Mean Square Error function used to estimate the smoothing constants
