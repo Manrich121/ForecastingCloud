@@ -1,5 +1,10 @@
 '''
-Created on 30 Oct 2014
+# Holt-Winters algorithms to forecasting
+# Coded in Python 2 by: Andre Queiroz
+# Description: This module contains three exponential smoothing algorithms. They are Holt's linear trend method and Holt-Winters seasonal methods (additive and multiplicative).
+# References:
+#  Hyndman, R. J.; Athanasopoulos, G. (2013) Forecasting: principles and practice. http://otexts.com/fpp/. Accessed on 07/03/2013.
+#  Byrd, R. H.; Lu, P.; Nocedal, J. A Limited Memory Algorithm for Bound Constrained Optimization, (1995), SIAM Journal on Scientific and Statistical Computing, 16, 5, pp. 1190-1208.
 
 @author: Manrich
 '''
