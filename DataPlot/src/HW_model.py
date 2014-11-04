@@ -28,7 +28,7 @@ class HW_model:
         self.type = type
         self.alpha, self.beta, self.gamma = 0.0, 0.0, 0.0
         self.m = 0
-        self.data = data
+        self.data = data[:]
     
     def fit(self):
         '''
@@ -40,7 +40,7 @@ class HW_model:
         RMSE: Root Mean Squared Error of the model when fit to the data
         '''
         rmse = 0.0
-        y = self.data
+        y = self.data[:]
         
         if self.type == 'linear':
             initial_values = array([0.3, 0.1])

@@ -9,10 +9,19 @@ import holtwinters as hw
 from sklearn.metrics import mean_squared_error, r2_score
 import pandas as pd
 
+from multiprocessing import Pool
+from multiprocessing.dummy import Pool as ThreadPool 
+
+def insertIntoArray(aggregatedRmse, row):
+    if aggregatedRmse == None:
+        return np.atleast_2d(row)
+    else:
+        return np.vstack((aggregatedRmse, np.array(row)))
+        
 
 # In[2]:
 
-def performsSlidingWindowForecast(filename, input_window, predic_window):
+def performsSlidingWindowForecast(filename, input_window=3000, predic_window=60):
     '''
     Input window = 250 hours = 250*12 = 3000 
     look ahead window 60 samples =  5 hours = 720min/5 = 60
@@ -21,10 +30,8 @@ def performsSlidingWindowForecast(filename, input_window, predic_window):
     N = len(data.Cpu)
     forecastRmse = []
     
-    print filename, "started"
-    
     for strIndex in range(0,N-input_window - predic_window,predic_window):
-               
+        print strIndex       
         y = data.Cpu[strIndex:strIndex + input_window].tolist()
         y_true = data.Cpu[strIndex + input_window:strIndex + input_window+predic_window]
 
@@ -34,17 +41,26 @@ def performsSlidingWindowForecast(filename, input_window, predic_window):
         forecastRmse.append(mean_squared_error(y_true, y_pred))
         
     print filename, "complete!"
-    fileutils.writeCSV("D:/data/test.csv", data=[forecastRmse], mode='a')
+    return forecastRmse
 
-
-# In[ ]:
-
-files =  fileutils.getFilelist("D:/data/cpuRate")
-
-for f in files:
-    performsSlidingWindowForecast(f, 3000, 60)
-
-# print "Model rmse:", rmse
-# print "Forecast RMSE:", mean_squared_error(y_true, y_pred)
-# print "R sqaured:", r2_score(y_true, y_pred)
+if __name__ == '__main__':
+    aggregatedRmse = None
+    count =0
+    pool = ThreadPool(3)
+    files =  fileutils.getFilelist("D:/data/cpuRate")
+    
+    results = pool.map(performsSlidingWindowForecast, files[:3])
+    pool.close()
+    pool.join()
+    # for f in files:
+    #     count+=1
+    #     print count, f
+    #     aggregatedRmse = insertIntoArray(aggregatedRmse, performsSlidingWindowForecast(f))
+    
+    print results
+#     fileutils.writeCSV("d:/data/cpuRate/output.csv",aggregatedRmse)
+    
+    # print "Model rmse:", rmse
+    # print "Forecast RMSE:", mean_squared_error(y_true, y_pred)
+    # print "R sqaured:", r2_score(y_true, y_pred)
 
