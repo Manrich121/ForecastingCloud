@@ -34,6 +34,7 @@ class HW_model:
         self.alpha, self.beta, self.gamma = 0.0, 0.0, 0.0
         self.m = 0
         self.data = data[:]
+        self.min = np.percentile(data,5) # 5th percentile of training data
     
     def fit(self):
         '''
@@ -140,8 +141,11 @@ class HW_model:
                 s.append(gamma * (Y[i] / (a[i] + b[i])) + (1 - gamma) * s[i])
                 y.append((a[i + 1] + b[i + 1]) * s[i + 1])
                 
-        return Y[-fc:]
-    
+        predictions = Y[-fc:]
+        ''' Replace negative values'''
+        predictions[np.argwhere(predictions<0)] = self.min
+        return predictions
+   
     def RMSE(self,params, *args):
         '''
         Root Mean Square Error function used to estimate the smoothing constants
