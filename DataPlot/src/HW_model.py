@@ -21,7 +21,7 @@ class HW_model:
     Holt-winters model class
     '''
 
-    def __init__(self, data, type):
+    def __init__(self, data, min, type):
         '''
         Create a Holt-Winters model of type={linear, additive, multiplicative}. The corresponding parameters [alpha, beta, gamma, m] 
         will be estimated from the data.
@@ -34,7 +34,7 @@ class HW_model:
         self.alpha, self.beta, self.gamma = 0.0, 0.0, 0.0
         self.m = 0
         self.data = data[:]
-        self.min = np.percentile(data,5) # 5th percentile of training data
+        self.min = min
     
     def fit(self):
         '''
@@ -81,6 +81,44 @@ class HW_model:
             
             return [self.alpha, self.beta, self.gamma, self.m], rmse 
 
+    def update(self,data):
+        '''
+        Updates the Holt-winters model by re-estimating the paramters {alpha, beta, gamma, m} depending
+        on the model type
+        '''
+        self.data = data[:]
+        y = self.data[:]
+        if self.type == 'linear':
+            initial_values = array([self.alpha, self.beta])
+            boundaries = [(0, 1), (0, 1)]
+     
+            parameters = fmin_l_bfgs_b(self.RMSE, x0 = initial_values, args = (y, self.type), bounds = boundaries, approx_grad = True)
+            self.alpha, self.beta = parameters[0]
+            rmse = parameters[1]
+            return [self.alpha, self.beta], rmse
+            
+        elif self.type == 'additive':
+            self.m = tsutils.findDominentSeason(y)
+         
+            initial_values = array([self.alpha, self.beta, self.gamma])
+            boundaries = [(0, 1), (0, 1), (0, 1)]
+     
+            parameters = fmin_l_bfgs_b(self.RMSE, x0 = initial_values, args = (y, self.type, self.m), bounds = boundaries, approx_grad = True)
+            self.alpha, self.beta, self.gamma = parameters[0]
+            rmse = parameters[1]
+            
+            return [self.alpha, self.beta, self.gamma, self.m], rmse
+            
+        elif self.type == 'multiplicative':
+            self.m = tsutils.findDominentSeason(y)
+            
+            initial_values = array([self.alpha, self.beta, self.gamma])
+            boundaries = [(0, 1), (0, 1), (0, 1)]
+     
+            parameters = fmin_l_bfgs_b(self.RMSE, x0 = initial_values, args = (y, self.type, self.m), bounds = boundaries, approx_grad = True)
+            self.alpha, self.beta, self.gamma = parameters[0]
+            rmse = parameters[1]
+        
     def predict(self, fc):
         '''
         Forecasts fc samples into the future, using the model parameters corresponding to the model type
@@ -141,9 +179,9 @@ class HW_model:
                 s.append(gamma * (Y[i] / (a[i] + b[i])) + (1 - gamma) * s[i])
                 y.append((a[i + 1] + b[i + 1]) * s[i + 1])
                 
-        predictions = Y[-fc:]
         ''' Replace negative values'''
-        predictions[np.argwhere(predictions<0)] = self.min
+        predictions = np.array(Y[-fc:])
+        predictions[np.argwhere(predictions<0)] = np.float_(self.min)
         return predictions
    
     def RMSE(self,params, *args):
