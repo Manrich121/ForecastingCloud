@@ -49,7 +49,7 @@ def calc_upper_lower_acc(y_true, y_fc, band=0.1, print_=False):
     
     Return
     -------
-    @return: The count for each [correct, over-est, under-est]
+    @return: correct prediction rate, over-estimation rate, under-estimation rate]
     @rtype: float
     '''
     
@@ -60,12 +60,16 @@ def calc_upper_lower_acc(y_true, y_fc, band=0.1, print_=False):
     overest = sum(np.greater_equal(y_fc,upper10))
     underest = sum(np.less_equal(y_fc,lower10))
     
+    correct_rate = 1.0*correct/(correct+overest+underest)
+    overest_rate = 1.0*overest/(correct+overest+underest)
+    underest_rate = 1.0*underest/(correct+overest+underest)
+    
     if print_:
-        print "Correct prediction rate =", 1.0*correct/(correct+overest+underest)
-        print "Over-estimation rate =", 1.0*overest/(correct+overest+underest)
-        print "Under-estimation rate =", 1.0*underest/(correct+overest+underest)
+        print "Correct prediction rate =", correct_rate
+        print "Over-estimation rate =", overest_rate
+        print "Under-estimation rate =", underest_rate
 
-    return correct, overest, underest
+    return correct_rate, overest_rate, underest_rate
 
 def calc_persample_accuracy(y_true, y_fc, threshold, print_=False):
     '''
