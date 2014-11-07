@@ -99,7 +99,7 @@ def readAndAggregate(filename, outputDir, resource='cpu'):
         aggregatedData[x,0] = strTime
         x +=1
         
-    fileutils.writeCSV(outputDir+'/' + resource + '_' +fileCsv, aggregatedData)
+    fileutils.writeCSV(outputDir+'/' + resource + '_' +fileCsv, aggregatedData, header=('Time',resource.capitalize()))
 
 def readAndWriteAllCpuRate():
     for f in fileutils.getFilelist("D:/data/perMachine"):
@@ -107,10 +107,14 @@ def readAndWriteAllCpuRate():
         readAndAggregate(f, "d:/data/cpuRate", 'cpu')
     
 if __name__ == '__main__':
+    for f in fileutils.getFilelist("D:/data/perMachine"):
+        print f
+        readAndAggregate(f, "d:/data/diskIO", 'diskIO')
+    
          
-    data = np.genfromtxt("d:/data/memory/memory_907812.csv", delimiter=',', usecols=(0,1))
+    data = np.genfromtxt("d:/data/cpuRate/cpu_907812.csv", delimiter=',', usecols=(0,1))
     plt.plot(data[:,0]/1e6,data[:,1])
-    plt.title("Machine 907812's diskIO over 29 day period")
+    plt.title("Machine 907812's cpu over 29 day period")
     plt.xlabel("Time (s)")
-    plt.ylabel("diskIO time")
+    plt.ylabel("Cpu time")
     plt.show()
