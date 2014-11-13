@@ -5,24 +5,19 @@ Created on 03 Nov 2014
 '''
 import statsmodels.api as sm
 import numpy as np
+from scipy import signal
 
-def findDominentSeason(y, ignoreDC=True):
+def findDominentSeason(y):
     '''
     Finds the dominant season in samples
     y: data
-    ignoreDC: set to include DC component or not
     '''
     N = len(y)
-    yf = sm.tsa.stattools.periodogram(y)
-    xf = np.linspace(0,1,N/2) 
     
-    strIndex = 0
-    if ignoreDC:
-        strIndex = 1
+    freq, pwr = signal.periodogram(y)
+    ind = np.argmax(pwr)
     
-    ibest = np.argmax(yf[strIndex:N/2]) + strIndex
-    
-    return np.min([np.int_(np.round( 1.0/xf[ibest])), N])
+    return np.min([np.int_(np.round(1/freq[ind])), N])
 
 def contiguous_regions(condition):
     """Finds contiguous True regions of the boolean array "condition". Returns
