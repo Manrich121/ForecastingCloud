@@ -36,6 +36,7 @@ if __name__ == '__main__':
     pool = ThreadPool(4)
     files =  fileutils.getFilelist("D:/data/cpuRate")
         
-    pool.map(performsSlidingWindowForecast, files[:1])
+#     performsSlidingWindowForecast("D:/data/cpuRate/cpu_1095481.csv")
+    pool.map(performsSlidingWindowForecast, files)
     pool.close()
     pool.join()
