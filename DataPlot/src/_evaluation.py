@@ -7,7 +7,7 @@ from multiprocessing import Pool as ThreadPool
 
 def performEvaluations(filename, train_window = 3000, overload_dur = 5, overload_percentile = 70, steps=30):
     cur_results = []
-    forecasts = np.genfromtxt("d:/data/cpu_markov1_forecasts/"+ filename,delimiter=',',usecols=range(0,steps)).ravel()
+    forecasts = np.genfromtxt("d:/data/cpu_markov2_forecasts/"+ filename,delimiter=',',usecols=range(0,steps)).ravel()
     truevals = np.genfromtxt("d:/data/cpuRate/"+filename, delimiter=',',skip_header=1)[train_window:train_window+len(forecasts),1]
     
     threshold =  np.percentile(truevals, overload_percentile)
@@ -33,4 +33,4 @@ if __name__ == '__main__':
     pool.close()
     pool.join()
     
-    fileutils.writeCSV("d:/data/results/markov1.csv", results)
+    fileutils.writeCSV("d:/data/results/markov2.csv", results)
