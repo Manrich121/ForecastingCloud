@@ -22,7 +22,8 @@ def performsSlidingWindowForecast(filename, minpercentile=5, step=30, input_wind
             model = Markov_model.Markov_model(y, maximum=max, order=order_)
             model.fit()
         else:
-            y = data[strIndex:strIndex+input_window,1]
+#             y = data[strIndex:strIndex+input_window,1]
+            y = data[input_window + strIndex - step:input_window + strIndex, 1]
             model.update(y)
               
         y_pred = model.predict(predic_window)
