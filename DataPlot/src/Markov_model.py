@@ -10,12 +10,12 @@ class Markov_model(object):
     '''
     classdocs
     '''
-    def __init__(self, data, M=40, order=1):
+    def __init__(self, data, maximum, M=40, order=1):
         '''
         Constructor
         '''
         self.data = data[:]        
-        self.bins = np.array(np.linspace(0,max(data), M+1))
+        self.bins = np.array(np.linspace(0,maximum, M+1))
         self.states = np.digitize(data, self.bins, right=True)
         self.M = M
         self.order = order
@@ -49,18 +49,25 @@ class Markov_model(object):
     
     def predict(self, fc):
         forecasts = np.zeros((fc))
-        cur_state = self.states[-1] 
-        if self.order == 1: 
+        str_state = self.states[-1] 
+        if self.order == 1:
             for p in range(1,fc+1):
-                transrow = self.transmat[cur_state-1,:]
+                transrow = self.transmat[str_state-1,:]
                 pred_state = np.argmax(transrow)+1
                 cur_state = pred_state
                 forecasts[p-1] = self.bins[pred_state]
+#             str_state = np.zeros((1, self.M))
+#             str_state[0, self.states[-1]-1] = 1  
+#             trans = np.copy(self.transmat)
+#             for p in range(fc):
+#                 transrow =  np.dot(str_state, trans)
+#                 forecasts[p] = self.bins[np.argmax(transrow) +1]
+#                 trans = np.dot(self.transmat, trans)
         elif self.order == 2:
             prev_state = self.states[-2]
             for p in range(fc):
-                pred = np.argmax(self.transmat[prev_state-1, cur_state-1]) +1
-                prev_state = cur_state
-                cur_state = pred
+                pred = np.argmax(self.transmat[prev_state-1, str_state-1]) +1
+                prev_state = str_state
+                str_state = pred
                 forecasts[p] = self.bins[pred]
         return forecasts
