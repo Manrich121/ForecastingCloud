@@ -15,7 +15,7 @@ def findDominentSeason(y):
     N = len(y)
     
     freq, pwr = signal.periodogram(y)
-    ind = np.argmax(pwr)
+    ind = np.argmax(pwr[1:])+1
     
     return np.min([np.int_(np.round(1/freq[ind])), N])
 
