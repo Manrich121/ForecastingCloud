@@ -4,7 +4,6 @@ Created on 17 Nov 2014
 @author: Manrich
 '''
 import numpy as np
-import pykov
 
 class Markov_model(object):
     '''
@@ -30,7 +29,8 @@ class Markov_model(object):
         '''
         if self.order == 1:
             for n in range(self.data.shape[0]-1):
-                i, j = self.states[n]-1 , self.states[n+1]-1
+                i = self.states[n]-1
+                j = self.states[n+1]-1
                 self.transcount[i, j] += 1
             self.transmat = np.nan_to_num(self.transcount / np.tile(np.sum(self.transcount, axis=1), (self.M,1)).T)
         elif self.order == 2:
