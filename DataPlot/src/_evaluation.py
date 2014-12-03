@@ -33,4 +33,4 @@ if __name__ == '__main__':
     pool.close()
     pool.join()
     
-    fileutils.writeCSV("d:/data/results/press.csv", results)
+    fileutils.writeCSV("d:/data/results/wavelet.csv", results)
