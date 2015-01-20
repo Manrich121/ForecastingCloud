@@ -31,13 +31,13 @@ def performsSlidingWindowForecast(filename, minpercentile=5, step=30, input_wind
         y_pred[y_pred[:,0]<0,0] = minimum
         result.append(y_pred[:,0])
     f = filename.split('/')[-1]
-    fileutils.writeCSV("d:/data/cpu_ar_forecasts/"+f, np.atleast_2d(result))
+    fileutils.writeCSV("d:/data/memory_ar_forecasts/"+f, np.atleast_2d(result))
     print filename, "complete!"
 
 if __name__ == '__main__':
     aggregatedRmse = None
     pool = ThreadPool(4)
-    files =  fileutils.getFilelist("D:/data/cpuRate")
+    files =  fileutils.getFilelist("D:/data/memory")
     
     pool.map(performsSlidingWindowForecast, files)
     pool.close()
