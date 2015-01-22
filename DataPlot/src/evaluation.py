@@ -3,6 +3,7 @@ Created on 07 Nov 2014
 
 @author: Manrich
 '''
+from __future__ import division
 import tsutils
 import numpy as np
 from sklearn.metrics import mean_squared_error
@@ -60,9 +61,9 @@ def calc_upper_lower_acc(y_true, y_fc, band=0.1, print_=False):
     overest = sum(np.greater_equal(y_fc,upper10))
     underest = sum(np.less_equal(y_fc,lower10))
     
-    correct_rate = 1.0*correct/(correct+overest+underest)
-    overest_rate = 1.0*overest/(correct+overest+underest)
-    underest_rate = 1.0*underest/(correct+overest+underest)
+    correct_rate = np.divide(1.0*correct, correct+overest+underest)
+    overest_rate = np.divide(1.0*overest, correct+overest+underest)
+    underest_rate = np.divide(1.0*underest, correct+overest+underest)
     
     if print_:
         print "Correct prediction rate =", correct_rate
@@ -102,8 +103,8 @@ def calc_persample_accuracy(y_true, y_fc, threshold, print_=False):
     Fn = sum(np.logical_and(r_overload_samples, ~fc_overload_samples))
     
     # Calculate rates
-    TPR = 1.0*Tp/(Tp+Fn)
-    FPR = 1.0*Fp/(Fp+Tn)
+    TPR = np.divide(1.0*Tp, Tp+Fn)
+    FPR = np.divide(1.0*Fp, Fp+Tn)
     
     if print_:
         printConfusion(Tp, Fp, Tn, Fn)
@@ -139,8 +140,8 @@ def calc_overload_states_acc(y_true, y_fc, threshold, overload_dur=5, print_=Fal
     Fn = total_n-Tn
     
     # Calculate rates
-    TPR = 1.0*Tp/(Tp+Fn)
-    FPR = 1.0*Fp/(Fp+Tn)
+    TPR = np.divide(1.0*Tp, Tp+Fn)
+    FPR = np.divide(1.0*Fp, Fp+Tn)
 
     if print_:
         printConfusion(Tp, Fp, Tn, Fn)
@@ -232,8 +233,8 @@ def printConfusion(Tp, Fp, Tn, Fn):
     print " ------------"
     
     # Calculate rates
-    TPR = 1.0*Tp/(Tp+Fn)
-    FPR = 1.0*Fp/(Fp+Tn)
+    TPR = np.divide(1.0*Tp, Tp+Fn)
+    FPR = np.divide(1.0*Fp, Fp+Tn)
 
     print "TPR = ", TPR
     print "FPR = ", FPR
