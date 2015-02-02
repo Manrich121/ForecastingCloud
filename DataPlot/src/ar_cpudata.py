@@ -13,7 +13,7 @@ def performsSlidingWindowForecast(filename, minpercentile=5, step=30, input_wind
     Input window = 250 hours = 250*12 = 3000 
     look ahead window 60 samples =  5 hours = 720min/5 = 60
     '''
-    data = np.nan_to_num(np.genfromtxt(filename, delimiter=',', skip_header=1))
+    data = np.nan_to_num(np.genfromtxt(filename, delimiter=',', skip_header=1))[:3840,:]
     minimum = np.percentile(data[:,1],minpercentile)
     N = len(data[:,1])
     result = []
@@ -31,13 +31,13 @@ def performsSlidingWindowForecast(filename, minpercentile=5, step=30, input_wind
         y_pred[y_pred[:,0]<0,0] = minimum
         result.append(y_pred[:,0])
     f = filename.split('/')[-1]
-    fileutils.writeCSV("d:/data/memory_ar_forecasts/"+f, np.atleast_2d(result))
+    fileutils.writeCSV("d:/data/diskio_ar_forecasts/"+f, np.atleast_2d(result))
     print filename, "complete!"
 
 if __name__ == '__main__':
     aggregatedRmse = None
     pool = ThreadPool(4)
-    files =  fileutils.getFilelist("D:/data/memory")
+    files =  fileutils.getFilelist("D:/data/diskio")
     
     pool.map(performsSlidingWindowForecast, files)
     pool.close()

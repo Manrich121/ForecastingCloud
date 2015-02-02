@@ -10,8 +10,8 @@ from multiprocessing import Pool as ThreadPool
 
 def performEvaluations(filename, train_window = 3000, overload_dur = 5, overload_percentile = 70, steps=30):
     cur_results = []
-    forecasts = np.genfromtxt("d:/data/memory_hw_forecasts/"+ filename,delimiter=',',usecols=range(0,steps)).ravel()
-    truevals = np.genfromtxt("d:/data/memory/"+filename, delimiter=',',skip_header=1)[train_window:train_window+len(forecasts),1]
+    forecasts = np.genfromtxt("d:/data/diskio_hw_forecasts/"+ filename,delimiter=',',usecols=range(0,steps)).ravel()
+    truevals = np.genfromtxt("d:/data/diskio/"+filename, delimiter=',',skip_header=1)[train_window:train_window+len(forecasts),1]
     
     threshold =  np.percentile(truevals, overload_percentile)
     
@@ -27,7 +27,7 @@ def performEvaluations(filename, train_window = 3000, overload_dur = 5, overload
 
 if __name__ == '__main__':
     files = []
-    for _, _, fs in os.walk("d:/data/memory/"):
+    for _, _, fs in os.walk("d:/data/diskio/"):
         for f in fs:
             if f.endswith(".csv"):
                 files.append(f)
@@ -37,4 +37,4 @@ if __name__ == '__main__':
     pool.close()
     pool.join()
     
-    fileutils.writeCSV("d:/data/results/memory_holtwinters.csv", results)
+    fileutils.writeCSV("d:/data/results/diskio_holtwinters.csv", results)
