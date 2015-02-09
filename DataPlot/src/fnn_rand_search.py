@@ -12,10 +12,11 @@ from sklearn.metrics import explained_variance_score
 from pybrain.datasets import SupervisedDataSet
 from pybrain.tools.shortcuts import buildNetwork
 from pybrain.supervised.trainers import BackpropTrainer
-from pybrain.structure.modules import SigmoidLayer
+from pybrain.structure.modules import SigmoidLayer, TanhLayer
 
 from multiprocessing import Pool 
 from __builtin__ import xrange
+from statsmodels.tsa.vector_ar.var_model import forecast
 
 def sampleGeometrically(A, B):
     if A<B:
@@ -25,23 +26,22 @@ def sampleGeometrically(A, B):
     return scipy.exp(scipy.random.uniform(low=logA, high=logB))
 
 def trainFunc(params):
-    iter, trainds, validds, input_size, hidden, eta, lmda, epochs = params
-    print 'Iter:', iter, 'Epochs:', epochs, 'Hidden_size:', hidden, 'Eta:', eta, 'Lamda:', lmda 
+    iter, trainds, validds, input_size, hidden, func, eta, lmda, epochs = params
+    print 'Iter:', iter, 'Epochs:', epochs, 'Hidden_size:', hidden, 'Eta:', eta, 'Lamda:', lmda, 'Activation:', func
     net = buildNetwork(input_size, hidden, 1,  bias=True)
     trainer = BackpropTrainer(net, trainds, learningrate=eta, weightdecay=lmda, momentum=0.1, shuffle=False)
     trainer.trainEpochs(epochs)
     pred = np.nan_to_num(net.activateOnDataset(validds))
     validerr = eval.calc_RMSE(validds['target'], pred)
     varscore = explained_variance_score(validds['target'], pred)
-#     varscore = np.correlate(validds['target'], pred)
     return validerr, varscore, net
 
 if __name__ == '__main__':
     data = np.genfromtxt("d:/data/cpuRate/cpu_905814.csv",skip_header=1, delimiter=',',usecols=(1))
     
-    TRAIN = 1000
-    VALID = 100
-    TEST = 100
+    TRAIN = 2000
+    VALID = 200
+    TEST = 200
     INPUT_SIZE = 30
     
     train, valid, test = data[:TRAIN], data[TRAIN-INPUT_SIZE:TRAIN+VALID], data[TRAIN-INPUT_SIZE+VALID:TRAIN+VALID+TEST]
@@ -62,11 +62,11 @@ if __name__ == '__main__':
     THREADS = 5
     hidden_range=[4, 32]
     eta_range=[0.0001, 10.0]
-    activation_func_prob=[.5, .5]
+    activation_func=[SigmoidLayer, TanhLayer]
     lamda_range=[1e-7, 1e-5]
     epochs_factor=1
     miniters=10
-    maxiters=100  
+    maxiters=1000  
     
     besthparams = []
     besterr = np.inf
@@ -80,10 +80,12 @@ if __name__ == '__main__':
         for i in range(THREADS):
             hidden = np.int(sampleGeometrically(hidden_range[0], hidden_range[1])) 
             eta = sampleGeometrically(eta_range[0], eta_range[1])
-            lmda = sampleGeometrically(lamda_range[0], lamda_range[1])
-#             lmda = 0.0
+            lmda = 0.0
+            if scipy.random.randint(0,2):
+                lmda = sampleGeometrically(lamda_range[0], lamda_range[1])
+            func = activation_func[scipy.random.randint(low=0, high=len(activation_func))]
             epochs = 20
-            hyperparams.append([iter+i, trainds, validds, INPUT_SIZE, hidden, eta, lmda, epochs])
+            hyperparams.append([iter+i, trainds, validds, INPUT_SIZE, hidden, func, eta, lmda, epochs])
         errors_var_net = pool.map(trainFunc, hyperparams)
         for i in range(THREADS):
             error = errors_var_net[i][0]
@@ -99,10 +101,18 @@ if __name__ == '__main__':
         if iter>miniters and bestiter<iter/2:
             break 
         
-    print besterr, bestvarscore, besthparams
+    print 'Epochs:', besthparams[-1], 'Hidden_size:', besthparams[1], 'Eta:', besthparams[3], 'Lamda:', besthparams[4], 'Activation:', besthparams[2]
     pool.close()
     pool.join() 
         
+    
+    unknown = valid[-30:]
+    forecasts = []
+    for i in range(30):
+        fc = bestnet.activate(unknown)
+        forecasts.append(fc)
+        unknown = np.append(unknown[1:], fc)
+    
     plt.plot(validds['target'])
     plt.plot(bestnet.activateOnDataset(validds))
     plt.title('Validation')
@@ -111,5 +121,9 @@ if __name__ == '__main__':
     plt.plot(testds['target'])
     plt.plot(pred)
     plt.title('Testing')
+    plt.figure()
+    plt.plot(testds['target'][:30])
+    plt.plot(forecasts)
+    plt.title('Forecasts')
     plt.show()
     
