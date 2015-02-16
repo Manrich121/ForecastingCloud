@@ -43,7 +43,7 @@ def trainFunc(params):
 if __name__ == '__main__':
     
     files =  fileutils.getFilelist("../data/cpuRate")
-    for machine in files[22:23]:
+    for machine in files[46:47]:
         machine = machine.strip('.csv').split('/')[-1]
         print(machine)
         
@@ -75,7 +75,7 @@ if __name__ == '__main__':
         activation_func=[SigmoidLayer, TanhLayer]
         lamda_range=[1e-7, 1e-5]
         epochs_factor=1
-        miniters=10
+        miniters=100
         maxiters=1000  
         
         besthparams = []
@@ -125,15 +125,15 @@ if __name__ == '__main__':
         plt.plot(validds['target'])
         plt.plot(bestnet.activateOnDataset(validds))
         plt.title('Validation')
-        plt.figure()
-        pred = bestnet.activateOnDataset(testds)
-        plt.plot(testds['target'])
-        plt.plot(pred)
-        plt.title('Testing')
-        plt.figure()
-        plt.plot(testds['target'][:30])
-        plt.plot(forecasts)
-        plt.title('Forecasts')
+        # plt.figure()
+        # pred = bestnet.activateOnDataset(testds)
+        # plt.plot(testds['target'])
+        # plt.plot(pred)
+        # plt.title('Testing')
+        # plt.figure()
+        # plt.plot(testds['target'][:30])
+        # plt.plot(forecasts)
+        # plt.title('Forecasts')
         plt.show()
         
         NetworkWriter.writeToFile(bestnet, '../data/cpu_networks/'+machine+".xml")
