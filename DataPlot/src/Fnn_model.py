@@ -11,7 +11,6 @@ from pybrain.datasets import SupervisedDataSet
 from pybrain.tools.shortcuts import buildNetwork
 from pybrain.supervised.trainers import BackpropTrainer
 import evaluation as eval
-from src.fnn_rand_search import forecasts
 
 class Fnn_model(object):
     '''
@@ -35,16 +34,20 @@ class Fnn_model(object):
         
     def fit(self):
         trainds = SupervisedDataSet(self.INPUT_SIZE, 1)
-        for i in range(self.str_train+self.INPUT_SIZE, self.end_train):
+        for i in range(self.str_train, self.end_train):
             trainds.appendLinked(self.data[i-self.INPUT_SIZE:i],self.data[i])
         
         trainer = BackpropTrainer(self.net, trainds, learningrate=self.eta, weightdecay=self.lmda, momentum=0.1, shuffle=False)
         trainer.trainEpochs(self.epochs)
-            
+                    
+        trainer = None
+        
     def update(self):
         # Increment training indexes 
         self.str_train = self.end_train
         self.end_train += self.INPUT_SIZE
+        if self.end_train > len(self.data):
+            self.end_train = len(self.data)
         self.fit()
         
     def predict(self, fc):
@@ -61,7 +64,7 @@ class Fnn_model(object):
         @return: The fc predictions
         @rtype: array of shape (fc,)  
         '''
-        unknown = self.data[self.end_train:self.end_train+self.INPUT_SIZE]
+        unknown = self.data[self.end_train-self.INPUT_SIZE:self.end_train]
         forecasts = []
         for i in range(self.INPUT_SIZE):
             fc = self.net.activate(unknown)
