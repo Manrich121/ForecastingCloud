@@ -137,9 +137,9 @@ if __name__ == '__main__':
     plt.plot(forecasts)
     plt.title('Forecasts')
     plt.show()
-    
-    NetworkWriter.writeToFile(bestnet, '../data/cpu_networks/'+machine+".xml")
-    with open('../data/cpu_networks/hyperparams.csv', mode='a') as f:
-        print([machine,besterr,besthparams[1],besthparams[3],besthparams[4],besthparams[2]], sep=',', end='\n', file=f)
+#     
+#     NetworkWriter.writeToFile(bestnet, '../data/cpu_networks/'+machine+".xml")
+#     with open('../data/cpu_networks/hyperparams.csv', mode='a') as f:
+#         print([machine,besterr,besthparams[1],besthparams[3],besthparams[4],besthparams[2]], sep=',', end='\n', file=f)
 
 
