@@ -1,0 +1,7 @@
+['cpu_1095481', 0.077806374319120755, 4, 0.80440384327232528, 4.5802374730735128e-06, <class 'pybrain.structure.modules.lstm.LSTMLayer'>]
+['cpu_124596184', 0.036234803575297639, 11, 0.058582232769606189, 0.0, <class 'pybrain.structure.modules.tanhlayer.TanhLayer'>]
+['cpu_1268205', 0.029824165041395921, 9, 0.0023008968201962527, 4.0180850904204871e-06, <class 'pybrain.structure.modules.tanhlayer.TanhLayer'>]
+['cpu_1269048', 0.045499693878839287, 13, 0.0092012363463473777, 0.0, <class 'pybrain.structure.modules.tanhlayer.TanhLayer'>]
+['cpu_1301871', 0.06431008158268367, 14, 0.047241858820785777, 2.4299993298490832e-06, <class 'pybrain.structure.modules.tanhlayer.TanhLayer'>]
+['cpu_1303745', 0.060259640280181208, 5, 1.67606155970017, 0.0, <class 'pybrain.structure.modules.lstm.LSTMLayer'>]
+['cpu_1331706', 0.044626878567780269, 7, 0.05314669065267405, 0.0, <class 'pybrain.structure.modules.tanhlayer.TanhLayer'>]
