@@ -7,8 +7,8 @@ from multiprocessing import Pool as ThreadPool
 
 def performEvaluations(filename, train_window = 3000, overload_dur = 5, overload_percentile = 70, steps=30):
     cur_results = []
-    forecasts = np.genfromtxt("d:/data/cpu_fnn_forecasts/"+ filename,delimiter=',')
-    truevals = np.genfromtxt("d:/data/cpuRate/"+filename, delimiter=',',skip_header=1)[train_window:train_window+len(forecasts),1]
+    forecasts = np.genfromtxt("d:/data/memory_fnn_forecasts/"+ filename,delimiter=',')
+    truevals = np.genfromtxt("d:/data/memory/"+filename, delimiter=',',skip_header=1)[train_window:train_window+len(forecasts),1]
     
     threshold =  np.percentile(truevals, overload_percentile)
     
@@ -24,7 +24,7 @@ def performEvaluations(filename, train_window = 3000, overload_dur = 5, overload
 
 if __name__ == '__main__':
     files = []
-    for _, _, fs in os.walk("d:/data/cpuRate/"):
+    for _, _, fs in os.walk("d:/data/memory/"):
         for f in fs:
             if f.endswith(".csv"):
                 files.append(f)          
@@ -33,4 +33,4 @@ if __name__ == '__main__':
     pool.close()
     pool.join()
     
-    fileutils.writeCSV("d:/data/results/cpu_fnn.csv", results)
+    fileutils.writeCSV("d:/data/results/memory_fnn.csv", results)
