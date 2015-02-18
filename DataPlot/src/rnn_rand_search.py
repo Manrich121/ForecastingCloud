@@ -16,6 +16,9 @@ from pybrain.tools.shortcuts import buildNetwork
 from pybrain.supervised.trainers import BackpropTrainer
 from pybrain.structure.modules import SigmoidLayer, TanhLayer
 from pybrain.tools.customxml.networkwriter import NetworkWriter
+from pybrain.structure import RecurrentNetwork
+from pybrain.structure.modules import LinearLayer, SigmoidLayer, LSTMLayer, TanhLayer
+from pybrain.structure import FullConnection, IdentityConnection, BiasUnit
 
 from multiprocessing import Pool 
 from __builtin__ import xrange
@@ -32,13 +35,25 @@ def sampleGeometrically(A, B):
 def trainFunc(params):
     iter, trainds, validds, input_size, hidden, func, eta, lmda, epochs = params
     print('Iter:', iter, 'Epochs:', epochs, 'Hidden_size:', hidden, 'Eta:', eta, 'Lamda:', lmda, 'Activation:', func)
-    net = buildNetwork(input_size, hidden, 1,  bias=True)
-    trainer = BackpropTrainer(net, trainds, learningrate=eta, weightdecay=lmda, momentum=0.1, shuffle=False)
+    
+    # Build network
+    n = RecurrentNetwork()
+    n.addInputModule(LinearLayer(input_size, name = 'in'))
+    n.addModule(func(hidden, name = 'hidden'))
+    n.addModule(LinearLayer(hidden, name = 'context'))
+    n.addOutputModule(LinearLayer(1, name = 'out'))
+    n.addConnection(FullConnection(n['in'], n['hidden'], name = 'in_to_hidden'))
+    n.addConnection(FullConnection(n['hidden'], n['out'], name = 'hidden_to_out'))
+    n.addRecurrentConnection(FullConnection(n['hidden'], n['context']))
+    rnet = n
+    rnet.sortModules()
+    
+    trainer = BackpropTrainer(n, trainds, learningrate=eta, weightdecay=lmda, momentum=0.1, shuffle=False)
     trainer.trainEpochs(epochs)
-    pred = np.nan_to_num(net.activateOnDataset(validds))
+    pred = np.nan_to_num(n.activateOnDataset(validds))
     validerr = eval.calc_RMSE(validds['target'], pred)
     varscore = explained_variance_score(validds['target'], pred)
-    return validerr, varscore, net
+    return validerr, varscore, n
 
 if __name__ == '__main__':
     
@@ -51,6 +66,8 @@ if __name__ == '__main__':
     
     data = np.genfromtxt("../data/cpuRate/"+machine+".csv",skip_header=1, delimiter=',',usecols=(1))
     
+    miniters=100
+    maxiters=1000 
     TRAIN = 1000
     VALID = 100
     TEST = 100
@@ -74,11 +91,9 @@ if __name__ == '__main__':
     THREADS = 4
     hidden_range=[4, 32]
     eta_range=[0.0001, 10.0]
-    activation_func=[SigmoidLayer, TanhLayer]
+    activation_func=[LSTMLayer, SigmoidLayer, TanhLayer]
     lamda_range=[1e-7, 1e-5]
-    epochs_factor=1
-    miniters=100
-    maxiters=1000  
+    epochs_factor=1 
     
     besthparams = []
     besterr = np.inf
@@ -132,10 +147,10 @@ if __name__ == '__main__':
     plt.plot(testds['target'])
     plt.plot(pred)
     plt.title('Testing')
-    plt.figure()
-    plt.plot(testds['target'][:30])
-    plt.plot(forecasts)
-    plt.title('Forecasts')
+#     plt.figure()
+#     plt.plot(testds['target'][:30])
+#     plt.plot(forecasts)
+#     plt.title('Forecasts')
     plt.show()
 #     
 #     NetworkWriter.writeToFile(bestnet, '../data/cpu_networks/'+machine+".xml")
