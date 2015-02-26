@@ -59,7 +59,8 @@ if __name__ == '__main__':
     
     files =  fileutils.getFilelist("../data/cpuRate")
     
-    for machine in files[6:8]:
+    for machine in files[98:100]:
+        
         machine = machine.strip('.csv').split('/')[-1]
     #     machine = 'cpu_1095481'
         print(machine)
