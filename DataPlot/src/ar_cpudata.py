@@ -38,7 +38,8 @@ if __name__ == '__main__':
     aggregatedRmse = None
     pool = ThreadPool(4)
     files =  fileutils.getFilelist("D:/data/diskio")
+    print files
     
-    pool.map(performsSlidingWindowForecast, files)
-    pool.close()
-    pool.join()
+#     pool.map(performsSlidingWindowForecast, files)
+#     pool.close()
+#     pool.join()

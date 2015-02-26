@@ -12,7 +12,7 @@ from pybrain.tools.shortcuts import buildNetwork
 from pybrain.supervised.trainers import BackpropTrainer
 import evaluation as eval
 
-class Fnn_model(object):
+class Rnn_model(object):
     '''
     classdocs
     '''
