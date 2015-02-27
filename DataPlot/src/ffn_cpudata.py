@@ -38,7 +38,7 @@ def performsSlidingWindowForecast(filename_eta_lmda, minpercentile=5, step=30, i
 if __name__ == '__main__':
     root = "D:/data/memory/"
     pool = ThreadPool(4)
-    hyperparms =  np.genfromtxt("..\data\cpu_networks\hyperparams.csv", delimiter=',', dtype=None, skip_header=1)
+    hyperparms =  np.genfromtxt("..\data\cpu_fnn_networks\hyperparams.csv", delimiter=',', dtype=None, skip_header=1)
     files_etas_lmads = []
     count =0
     for curRow in hyperparms:

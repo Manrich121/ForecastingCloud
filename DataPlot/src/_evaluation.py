@@ -7,8 +7,8 @@ from multiprocessing import Pool as ThreadPool
 
 def performEvaluations(filename, train_window = 3000, overload_dur = 5, overload_percentile = 70, steps=30):
     cur_results = []
-    forecasts = np.genfromtxt("d:/data/memory_fnn_forecasts/"+ filename,delimiter=',')
-    truevals = np.genfromtxt("d:/data/memory/"+filename, delimiter=',',skip_header=1)[train_window:train_window+len(forecasts),1]
+    forecasts = np.nan_to_num(np.genfromtxt("d:/data/memory_rnn_forecasts/"+ filename,delimiter=','))
+    truevals = np.nan_to_num(np.genfromtxt("d:/data/memory/"+filename, delimiter=',',skip_header=1)[train_window:train_window+len(forecasts),1])
     
     threshold =  np.percentile(truevals, overload_percentile)
     
@@ -33,4 +33,4 @@ if __name__ == '__main__':
     pool.close()
     pool.join()
     
-    fileutils.writeCSV("d:/data/results/memory_fnn.csv", results)
+    fileutils.writeCSV("d:/data/results/memory_rnn.csv", results)

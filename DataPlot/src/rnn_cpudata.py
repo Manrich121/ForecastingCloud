@@ -20,8 +20,8 @@ def performsSlidingWindowForecast(filename_eta_lmda, minpercentile=5, step=30, i
     
     print filename, "started..."
     curMachine = filename.split('/')[-1]
-    curMachine = curMachine[:-4]
-
+    curMachine = "cpu" + filename.split('/')[-1].strip('.csv').strip('memory')
+    
     model = Rnn_model.Rnn_model(data=data, machineID = curMachine, eta=curEta, lmda=curLmda)
     model.fit()
     
@@ -34,18 +34,18 @@ def performsSlidingWindowForecast(filename_eta_lmda, minpercentile=5, step=30, i
     
     pred = np.array(pred).ravel()    
     f = filename.split('/')[-1]
-    fileutils.writeCSV("d:/data/cpu_rnn_forecasts/"+f, np.atleast_2d(pred))
+    fileutils.writeCSV("d:/data/memory_rnn_forecasts/"+f, np.atleast_2d(pred))
     print filename, "complete!"
 
 if __name__ == '__main__':
-    root = "D:/data/cpuRate/"
+    root = "D:/data/memory/"
     pool = ThreadPool(4)
     hyperparms =  np.genfromtxt("..\data\cpu_rnn_networks\hyperparams.csv", delimiter=',', dtype=None)
     files_etas_lmads = []
     count = 0
     for curRow in hyperparms:
-        files_etas_lmads.append([root+curRow[0].strip("'")+".csv", curRow[3], curRow[4]])
-    performsSlidingWindowForecast(files_etas_lmads[0])
-#     pool.map(performsSlidingWindowForecast, files_etas_lmads)
-#     pool.close()
-#     pool.join()
+        files_etas_lmads.append([root+"memory"+curRow[0].strip("'").strip("cpu")+".csv", curRow[3], curRow[4]])
+#     performsSlidingWindowForecast(files_etas_lmads[0])
+    pool.map(performsSlidingWindowForecast, files_etas_lmads)
+    pool.close()
+    pool.join()
