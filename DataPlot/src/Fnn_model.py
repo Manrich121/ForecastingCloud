@@ -29,7 +29,7 @@ class Fnn_model(object):
         self.epochs = epochs
         self.str_train = train_str_index
         self.end_train = train_end_index
-        self.net = NetworkReader.readFrom('../data/cpu_networks/'+machineID+".xml")
+        self.net = NetworkReader.readFrom('../data/cpu_rnn_networks/'+machineID+".xml")
 
         
     def fit(self):
