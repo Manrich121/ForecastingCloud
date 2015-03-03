@@ -58,8 +58,10 @@ def trainFunc(params):
 if __name__ == '__main__':
     
     files =  fileutils.getFilelist("../data/cpuRate")
-    
-    for machine in files[98:100]:
+#     target_files = ['cpu_1095481','cpu_1303745','cpu_1335782','cpu_1338948','cpu_1442486585','cpu_155313295','cpu_1664088958','cpu_317488701','cpu_317499484','cpu_3858945898','cpu_4304743890','cpu_4820238819','cpu_5796442','cpu_660404','cpu_711355','cpu_717319','cpu_904514','cpu_905062','cpu_907812']
+
+    for machine in files[98:100]:   
+#     for machine in target_files[16:19]:
         
         machine = machine.strip('.csv').split('/')[-1]
     #     machine = 'cpu_1095481'
@@ -92,7 +94,7 @@ if __name__ == '__main__':
         THREADS = 4
         hidden_range=[4, 32]
         eta_range=[0.0001, 10.0]
-        activation_func=[LSTMLayer, SigmoidLayer, TanhLayer]
+        activation_func=[SigmoidLayer, TanhLayer]
         lamda_range=[1e-7, 1e-5]
         epochs_factor=1 
         

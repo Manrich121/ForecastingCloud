@@ -7,19 +7,20 @@ from multiprocessing import Pool as ThreadPool
 
 def performEvaluations(filename, train_window = 3000, overload_dur = 5, overload_percentile = 70, steps=30):
     cur_results = []
-    forecasts = np.nan_to_num(np.genfromtxt("d:/data/cpu_Nar_forecasts/" + filename,delimiter=',',usecols=range(0,30))).ravel()
-    truevals = np.nan_to_num(np.genfromtxt("d:/data/cpuRate/"+filename, delimiter=',',skip_header=1)[train_window:train_window+len(forecasts),1])
+    forecasts = np.genfromtxt("d:/data/cpu_rnn_forecasts/" + filename, delimiter=',')
+    truevals = np.genfromtxt("d:/data/cpuRate/"+filename, delimiter=',',skip_header=1)[:train_window+len(forecasts),1]
+    
     # Normalize
-    truevals = np.divide(truevals, np.max(truevals))
+#     truevals = np.divide(truevals, np.max(truevals))
     
     threshold =  np.percentile(truevals, overload_percentile)
     
-    cur_results.append(eval.calc_RMSE(truevals, forecasts))
-    for val in eval.calc_upper_lower_acc(truevals, forecasts):
+    cur_results.append(eval.calc_RMSE(truevals[train_window:], forecasts))
+    for val in eval.calc_upper_lower_acc(truevals[train_window:], forecasts):
         cur_results.append(val) 
-    for val in eval.calc_persample_accuracy(truevals, forecasts, threshold):
+    for val in eval.calc_persample_accuracy(truevals[train_window:], forecasts, threshold):
         cur_results.append(val)
-    for val in eval.calc_overload_states_acc(truevals, forecasts, threshold):
+    for val in eval.calc_overload_states_acc(truevals[train_window:], forecasts, threshold):
         cur_results.append(val)
         
     return cur_results
@@ -32,9 +33,9 @@ if __name__ == '__main__':
                 files.append(f)          
     pool = ThreadPool(4)
     
-#     performEvaluations(files[0])
+#     print files[0], performEvaluations(files[0])
     results = pool.map(performEvaluations, files)
     pool.close()
     pool.join()
      
-    fileutils.writeCSV("d:/data/results/cpu_Nar.csv", results)
+    fileutils.writeCSV("d:/data/results/cpu_rnn.csv", results)
