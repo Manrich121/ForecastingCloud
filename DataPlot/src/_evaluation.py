@@ -7,8 +7,10 @@ from multiprocessing import Pool as ThreadPool
 
 def performEvaluations(filename, train_window = 3000, overload_dur = 5, overload_percentile = 70, steps=30):
     cur_results = []
-    forecasts = np.nan_to_num(np.genfromtxt("d:/data/memory_rnn_forecasts/"+ filename,delimiter=','))
-    truevals = np.nan_to_num(np.genfromtxt("d:/data/memory/"+filename, delimiter=',',skip_header=1)[train_window:train_window+len(forecasts),1])
+    forecasts = np.nan_to_num(np.genfromtxt("d:/data/cpu_Nar_forecasts/" + filename,delimiter=',',usecols=range(0,30))).ravel()
+    truevals = np.nan_to_num(np.genfromtxt("d:/data/cpuRate/"+filename, delimiter=',',skip_header=1)[train_window:train_window+len(forecasts),1])
+    # Normalize
+    truevals = np.divide(truevals, np.max(truevals))
     
     threshold =  np.percentile(truevals, overload_percentile)
     
@@ -24,13 +26,15 @@ def performEvaluations(filename, train_window = 3000, overload_dur = 5, overload
 
 if __name__ == '__main__':
     files = []
-    for _, _, fs in os.walk("d:/data/memory/"):
+    for _, _, fs in os.walk("d:/data/cpuRate/"):
         for f in fs:
             if f.endswith(".csv"):
                 files.append(f)          
     pool = ThreadPool(4)
+    
+#     performEvaluations(files[0])
     results = pool.map(performEvaluations, files)
     pool.close()
     pool.join()
-    
-    fileutils.writeCSV("d:/data/results/memory_rnn.csv", results)
+     
+    fileutils.writeCSV("d:/data/results/cpu_Nar.csv", results)
