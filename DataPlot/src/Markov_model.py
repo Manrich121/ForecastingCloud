@@ -14,7 +14,7 @@ class Markov_model(object):
         Constructor
         '''
         self.data = data[:]        
-        self.bins = np.array(np.linspace(0,maximum, M+1))
+        self.bins = np.array(np.linspace(min(data),maximum, M))
         self.states = np.digitize(data, self.bins, right=True)
         self.M = M
         self.order = order
@@ -42,6 +42,7 @@ class Markov_model(object):
 
     def update(self, newData):
         self.data = newData[:]
+        self.bins = np.array(np.linspace(min(newData),max(newData), self.M))
         self.states = np.digitize(newData, self.bins, right=True)
         self.fit()
         
