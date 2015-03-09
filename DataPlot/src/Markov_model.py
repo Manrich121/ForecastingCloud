@@ -14,7 +14,7 @@ class Markov_model(object):
         Constructor
         '''
         self.data = data[:]        
-        self.bins = np.array(np.linspace(min(data),maximum, M))
+        self.bins = np.array(np.linspace(0,maximum, M))
         self.states = np.digitize(data, self.bins, right=True)
         self.M = M
         self.order = order

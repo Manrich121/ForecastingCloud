@@ -26,8 +26,12 @@ def performsSlidingWindowForecast(filename_eta_lmda, minpercentile=5, step=30, i
     model.fit()
     
     pred = []
+    lastFc = None
     for p in range(input_window, len(data)-predic_window,predic_window):
         fc = model.predict(predic_window)
+        if lastFc is not None:
+            fc[0] = lastFc 
+        lastFc = fc[-1]
         fc[fc<0] = minimum
         pred.append(fc)
         model.update()
@@ -46,7 +50,7 @@ if __name__ == '__main__':
     count = 0
     for curRow in hyperparms:
         files_etas_lmads.append([root+curRow[0].strip("'")+".csv", curRow[3], curRow[4]])
-    performsSlidingWindowForecast(files_etas_lmads[0])
-#     pool.map(performsSlidingWindowForecast, files_etas_lmads)
-#     pool.close()
-#     pool.join()
+#     performsSlidingWindowForecast(files_etas_lmads[0])
+    pool.map(performsSlidingWindowForecast, files_etas_lmads)
+    pool.close()
+    pool.join()
