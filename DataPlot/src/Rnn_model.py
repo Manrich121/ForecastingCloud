@@ -49,7 +49,7 @@ class Rnn_model(object):
         if self.end_train > len(self.data):
             self.end_train = len(self.data)
         self.fit()
-        
+
     def predict(self, fc):
         '''
         Predicts fc samples into the future using the network corresponding to the data file

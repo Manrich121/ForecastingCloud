@@ -50,7 +50,7 @@ if __name__ == '__main__':
     count = 0
     for curRow in hyperparms:
         files_etas_lmads.append([root+curRow[0].strip("'")+".csv", curRow[3], curRow[4]])
-#     performsSlidingWindowForecast(files_etas_lmads[0])
-    pool.map(performsSlidingWindowForecast, files_etas_lmads)
-    pool.close()
-    pool.join()
+    performsSlidingWindowForecast(files_etas_lmads[0])
+#     pool.map(performsSlidingWindowForecast, files_etas_lmads)
+#     pool.close()
+#     pool.join()
