@@ -15,7 +15,7 @@ def performsSlidingWindowForecast(filename, minpercentile=5, step=30, input_wind
     '''
     data = np.genfromtxt(filename, delimiter=',',skip_header=1)
     # Normalize data
-    data[:,1] = np.divide(data[:,1], np.max(data[:,1]))
+#     data[:,1] = np.divide(data[:,1], np.max(data[:,1]))
     
     minimum = np.percentile(data[:,1],minpercentile)
     N = len(data[:,1])
@@ -34,7 +34,7 @@ def performsSlidingWindowForecast(filename, minpercentile=5, step=30, input_wind
         y_pred[y_pred[:,0]<0,0] = minimum
         result.append(y_pred[:,0])
     f = filename.split('/')[-1]
-    fileutils.writeCSV("d:/data/cpu_Nar_forecasts/"+f, np.atleast_2d(result))
+    fileutils.writeCSV("d:/data/cpu_ar_forecasts/"+f, np.atleast_2d(result))
     print filename, "complete!"
 
 if __name__ == '__main__':
@@ -42,7 +42,7 @@ if __name__ == '__main__':
     pool = ThreadPool(4)
     files =  fileutils.getFilelist("D:/data/cpuRate")
 #     print files
-    performsSlidingWindowForecast(files[0])
-#     pool.map(performsSlidingWindowForecast, files)
-#     pool.close()
-#     pool.join()
+#     performsSlidingWindowForecast(files[0])
+    pool.map(performsSlidingWindowForecast, files)
+    pool.close()
+    pool.join()

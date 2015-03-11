@@ -72,15 +72,15 @@ class AR_model(object):
         forecasts = np.zeros((window,1))
         x = np.zeros((1,self.Z))
         for f in range(window):
+            for i in range(1,f+1):
+                x[0,i-1] = forecasts[f-i,0]
             for t in range(self.Z-f):
-                x[0,t] = self.data[-(t+1)]
-            if f>0:
-                x[0,-f] = forecasts[f-1,0]
-            forecasts[f,0] = np.dot(x-mu, self.params) + mu
-#             if f == 0:
-#                 x[0,:] = self.data[-self.Z:]
-#             else:
-#                 x = np.atleast_2d(np.append(self.data[-(self.Z-f):], forecasts[:f,0]))
+                x[0,t+f] = self.data[-(t+1)]
+            forecasts[f,0] = np.dot(x-mu, self.params) + mu  
+#             for t in range(self.Z-f):
+#                 x[0,t] = self.data[-(t+1)]
+#             if f>0:
+#                 x[0,-f] = forecasts[f-1,0]
 #             forecasts[f,0] = np.dot(x-mu, self.params) + mu
              
         return forecasts
