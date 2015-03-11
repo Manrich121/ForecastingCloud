@@ -24,8 +24,12 @@ def performsSlidingWindowForecast(filename_eta_lmda, minpercentile=5, step=30, i
     model.fit()
     
     pred = []
+    lastFc = None
     for p in range(input_window, len(data)-predic_window,predic_window):
         fc = model.predict(predic_window)
+        if lastFc is not None:
+            fc[0] = lastFc 
+        lastFc = fc[-1]
         fc[fc<0] = minimum
         pred.append(fc)
         model.update()
