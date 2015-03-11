@@ -4,6 +4,7 @@ Created on 17 Nov 2014
 @author: Manrich
 '''
 import numpy as np
+import scipy
 
 class Markov_model(object):
     '''
@@ -14,12 +15,12 @@ class Markov_model(object):
         Constructor
         '''
         self.data = data[:]        
-        self.bins = np.array(np.linspace(0,maximum, M))
+        self.bins = np.array(np.linspace(0,maximum, M+1))
         self.states = np.digitize(data, self.bins, right=True)
         self.M = M
         self.order = order
         if order == 1:
-            self.transcount = np.ones((self.M,self.M))
+            self.transcount = np.zeros((self.M,self.M))
         elif order == 2:
             self.transcount = np.array([np.zeros((M,M))]*M)
            
@@ -39,10 +40,11 @@ class Markov_model(object):
                 x, y, z = self.states[i-1], self.states[i], self.states[i+1]
                 self.transcount[x-1,y-1,z-1] += 1
             self.transmat = np.nan_to_num(np.divide(self.transcount, np.array([np.tile(np.sum(self.transcount[idx], axis=1), (M,1)).T for idx in range(M)])))
+            
 
     def update(self, newData):
         self.data = newData[:]
-        self.bins = np.array(np.linspace(min(newData),max(newData), self.M))
+#         self.bins = np.array(np.linspace(min(newData),max(newData), self.M+1))
         self.states = np.digitize(newData, self.bins, right=True)
         self.fit()
         
@@ -51,7 +53,7 @@ class Markov_model(object):
         forecasts = np.zeros((fc))
         str_state = self.states[-1] 
         if self.order == 1:
-            for p in range(1,fc+1):
+            for p in range(fc):
                 transrow = self.transmat[str_state-1,:]
                 pred_state = np.argmax(transrow)+1
                 str_state = pred_state
@@ -70,4 +72,17 @@ class Markov_model(object):
                 prev_state = str_state
                 str_state = pred
                 forecasts[p] = self.bins[pred]
+        return forecasts
+    
+    def predictRandom(self, fc):
+        forecasts = np.zeros((fc))
+        str_state = self.states[-1]
+        for p in range(fc):
+            die = scipy.rand()
+            transrow = self.transmat[str_state-1,:]
+             
+            csum = np.cumsum(np.append(0,transrow))
+            pred_state = np.argwhere(np.diff(csum <= die))[0][0] +1
+            str_state = pred_state
+            forecasts[p] = self.bins[pred_state]
         return forecasts
