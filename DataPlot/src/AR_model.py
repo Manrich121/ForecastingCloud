@@ -46,11 +46,11 @@ class AR_model(object):
                 
         self.params = np.linalg.solve(a, b)
         
-    def update(self, data):
+    def update(self, newData):
         '''
         Sets the training data of the model to data and refits the model 
         '''
-        self.data = data[:]
+        self.data = newData[:]
         self.fit()
         
     def predict(self, fc):
@@ -70,13 +70,18 @@ class AR_model(object):
         window = fc
         mu = np.mean(self.data)
         forecasts = np.zeros((window,1))
-        x = np.zeros((1,window))
+        x = np.zeros((1,self.Z))
         for f in range(window):
-            for t in range(window-f):
+            for t in range(self.Z-f):
                 x[0,t] = self.data[-(t+1)]
             if f>0:
-                x[0,-f] = forecasts[f,0]
+                x[0,-f] = forecasts[f-1,0]
             forecasts[f,0] = np.dot(x-mu, self.params) + mu
-        
+#             if f == 0:
+#                 x[0,:] = self.data[-self.Z:]
+#             else:
+#                 x = np.atleast_2d(np.append(self.data[-(self.Z-f):], forecasts[:f,0]))
+#             forecasts[f,0] = np.dot(x-mu, self.params) + mu
+             
         return forecasts
         

@@ -42,7 +42,7 @@ if __name__ == '__main__':
     pool = ThreadPool(4)
     files =  fileutils.getFilelist("D:/data/cpuRate")
 #     print files
-#     performsSlidingWindowForecast(files[0])
-    pool.map(performsSlidingWindowForecast, files)
-    pool.close()
-    pool.join()
+    performsSlidingWindowForecast(files[0])
+#     pool.map(performsSlidingWindowForecast, files)
+#     pool.close()
+#     pool.join()
