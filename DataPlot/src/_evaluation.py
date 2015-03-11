@@ -7,7 +7,7 @@ from multiprocessing import Pool as ThreadPool
 
 def performEvaluations(filename, train_window = 3000, overload_dur = 5, overload_percentile = 70, steps=30):
     cur_results = []
-    forecasts = np.genfromtxt("d:/data/cpu_markov1_forecasts/" + filename, delimiter=',',usecols=range(0,30)).ravel() # ,usecols=range(0,30)
+    forecasts = np.genfromtxt("d:/data/cpu_combo_forecasts/" + filename, delimiter=',').ravel() # ,usecols=range(0,30)
     truevals = np.genfromtxt("d:/data/cpuRate/"+filename, delimiter=',',skip_header=1)[:train_window+len(forecasts),1]
     
     # Normalize
@@ -33,9 +33,10 @@ if __name__ == '__main__':
                 files.append(f)          
     pool = ThreadPool(4)
     
-#     print files[0], performEvaluations(files[0])
+#     performEvaluations(files[0])
     results = pool.map(performEvaluations, files)
     pool.close()
     pool.join()
      
-    fileutils.writeCSV("d:/data/results/cpu_markov1.csv", results)
+    fileutils.writeCSV("d:/data/results/cpu_combo.csv", results)
+    print "complete"
