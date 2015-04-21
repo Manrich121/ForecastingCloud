@@ -6,7 +6,7 @@ import os
 from multiprocessing import Pool as ThreadPool 
 
 METHOD = "combo"
-TYPE = "memory"
+TYPE = "cpu"
 
 def performEvaluations(filename, train_window = 3000, overload_dur = 5, overload_percentile = 70, steps=30):
         
