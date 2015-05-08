@@ -5,8 +5,8 @@ import numpy as np
 import os
 from multiprocessing import Pool as ThreadPool 
 
-METHOD = "markov2"
-TYPE = "network"
+METHOD = "agile"
+TYPE = "pageviews"
 
 def performEvaluations(filename, train_window = 3000, overload_dur = 5, overload_percentile = 70, steps=30):
         
