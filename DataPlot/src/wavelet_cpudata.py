@@ -8,15 +8,16 @@ from Wavelet_model import Wavelet_model
 
 from multiprocessing import Pool as ThreadPool 
 
-TYPE = "network"
+TYPE = "cpu"
 
 def performsSlidingWindowForecast(filename, minpercentile=5, step=30, input_window=3000, predic_window=30):
     '''
     Input window = 250 hours = 250*12 = 3000 
     look ahead window 60 samples =  5 hours = 720min/5 = 60
     '''
-    data = np.genfromtxt(filename)
-    data = data/np.max(data)
+#     data = np.genfromtxt(filename)
+#     data = data/np.max(data)
+    data = np.nan_to_num(np.genfromtxt(filename, delimiter=',', skip_header=1)[:,1]).ravel()
     minimum = np.percentile(data,minpercentile)
     N = len(data)
     result = []
@@ -34,14 +35,16 @@ def performsSlidingWindowForecast(filename, minpercentile=5, step=30, input_wind
         y_pred[y_pred<0] = minimum
         result.append(y_pred)
     f = filename.split('/')[-1]
-    fileutils.writeCSV("d:/Wikipage data/"+TYPE+"_agile/"+f, np.atleast_2d(result))
+    fileutils.writeCSV("d:/data/"+TYPE+"_agile/"+f, np.atleast_2d(result))
     print filename, "complete!"
 
 if __name__ == '__main__':
     aggregatedRmse = None
     pool = ThreadPool(4)
-    root = "D:/Wikipage data/"+TYPE
+    root = "D:/data/"+TYPE
     files =  fileutils.getFilelist(root)
+    
+#     performsSlidingWindowForecast(files[1])
 
     pool.map(performsSlidingWindowForecast, files)
     pool.close()

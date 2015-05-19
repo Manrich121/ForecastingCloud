@@ -6,6 +6,7 @@ Created on 03 Dec 2014
 import numpy as np
 import pywt
 from AR_model import AR_model
+from Markov_model import Markov_model
 
 class Wavelet_model(object):
     '''
@@ -51,9 +52,9 @@ class Wavelet_model(object):
                 self.bestType = t
                 
         self.coefs = pywt.wavedec(self.data, wavelet=self.bestType, level=self.levels)
-        
         for i in range(len(self.order)):
-            model = AR_model(approx_levels[i], order=self.order[i])
+#             model = AR_model(approx_levels[i], order=self.order[i])
+            model = Markov_model(approx_levels[i], maximum=np.max(approx_levels[i]))
             model.fit()
             self.models.append(model)
         
@@ -76,6 +77,7 @@ class Wavelet_model(object):
         coefs = self.coefs
         for i in range(len(self.order)):
  
+#             pred = self.models[i].predict(self.order[i])
             pred = self.models[i].predict(self.order[i])
             coefs[i] = np.append(coefs[i], pred)
         index = np.power(2 , self.levels)
