@@ -8,7 +8,7 @@ from Wavelet_model import Wavelet_model
 
 from multiprocessing import Pool as ThreadPool 
 
-TYPE = "cpu"
+TYPE = "cpu2"
 
 def performsSlidingWindowForecast(filename, minpercentile=5, step=30, input_window=3000, predic_window=30):
     '''
@@ -44,7 +44,7 @@ if __name__ == '__main__':
     root = "D:/data/"+TYPE
     files =  fileutils.getFilelist(root)
     
-#     performsSlidingWindowForecast(files[1])
+#     performsSlidingWindowForecast(files[0])
 
     pool.map(performsSlidingWindowForecast, files)
     pool.close()

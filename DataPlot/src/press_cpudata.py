@@ -10,8 +10,11 @@ def performsSlidingWindowForecast(filename, minpercentile=5, step=30, input_wind
     Input window = 250 hours = 250*12 = 3000 
     look ahead window 60 samples =  5 hours = 720min/5 = 60
     '''
-    data = np.genfromtxt(filename)
-    data = data/np.max(data)
+#     Wikidata
+#     data = np.genfromtxt(filename)
+#     data = data/np.max(data)
+
+    data = np.nan_to_num(np.genfromtxt(filename, delimiter=',', skip_header=1)[:,1]).ravel()
     minimum = np.percentile(data,minpercentile)
     N = len(data)
     result = []
@@ -34,13 +37,13 @@ def performsSlidingWindowForecast(filename, minpercentile=5, step=30, input_wind
     for i in range(len(result)):
         res[i,:len(result[i])] = result[i] 
     f = filename.split('/')[-1]
-    fileutils.writeCSV("d:/Wikipage data/network_press/"+f, np.atleast_2d(res))
+    fileutils.writeCSV("d:/data/cpu2_press/"+f, np.atleast_2d(res))
     print filename, "complete!"
 
 if __name__ == '__main__':
     aggregatedRmse = None
     pool = ThreadPool(4)
-    files =  fileutils.getFilelist("D:/Wikipage data/network")
+    files =  fileutils.getFilelist("D:/data/cpu2")
     pool.map(performsSlidingWindowForecast, files)
     pool.close()
     pool.join()
