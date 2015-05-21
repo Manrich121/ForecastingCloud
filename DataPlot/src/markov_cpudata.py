@@ -5,7 +5,7 @@ import Markov_model
 
 from multiprocessing import Pool as ThreadPool 
 
-def performsSlidingWindowForecast(filename, minpercentile=5, step=30, input_window=3000, predic_window=30, order_=2):
+def performsSlidingWindowForecast(filename, minpercentile=5, step=30, input_window=3000, predic_window=30, order_=1):
     '''
     Input window = 250 hours = 250*12 = 3000 
     look ahead window 60 samples =  5 hours = 720min/5 = 60

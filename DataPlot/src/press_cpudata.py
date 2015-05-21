@@ -37,13 +37,14 @@ def performsSlidingWindowForecast(filename, minpercentile=5, step=30, input_wind
     for i in range(len(result)):
         res[i,:len(result[i])] = result[i] 
     f = filename.split('/')[-1]
-    fileutils.writeCSV("d:/data/cpu2_press/"+f, np.atleast_2d(res))
+    fileutils.writeCSV("d:/data/cpu_press/"+f, np.atleast_2d(res))
     print filename, "complete!"
 
 if __name__ == '__main__':
     aggregatedRmse = None
     pool = ThreadPool(4)
-    files =  fileutils.getFilelist("D:/data/cpu2")
+    files =  fileutils.getFilelist("D:/data/cpu")
+    
     pool.map(performsSlidingWindowForecast, files)
     pool.close()
     pool.join()

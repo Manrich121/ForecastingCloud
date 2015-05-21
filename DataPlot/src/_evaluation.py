@@ -4,7 +4,7 @@ import numpy as np
 import os
 from multiprocessing import Pool as ThreadPool 
 
-METHOD = "agile"
+METHOD = "press"
 TYPE = "cpu2"
 
 def performEvaluations(filename, train_window = 3000, overload_dur = 5, overload_percentile = 70, steps=30):
