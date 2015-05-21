@@ -15,7 +15,7 @@ class Markov_model(object):
         Constructor
         '''
         self.data = data[:]        
-        self.bins = np.array(np.linspace(0,maximum, M+1))
+        self.bins = np.array(np.linspace(0,maximum, M))
         self.states = np.digitize(data, self.bins, right=True)
         self.M = M
         self.order = order
@@ -30,8 +30,8 @@ class Markov_model(object):
         '''
         if self.order == 1:
             for n in range(self.data.shape[0]-1):
-                i = self.states[n]-1
-                j = self.states[n+1]-1
+                i = self.states[n]
+                j = self.states[n+1]
                 self.transcount[i, j] += 1
             self.transmat = np.nan_to_num(self.transcount / np.tile(np.sum(self.transcount, axis=1), (self.M,1)).T)
         elif self.order == 2:
@@ -54,8 +54,8 @@ class Markov_model(object):
         str_state = self.states[-1] 
         if self.order == 1:
             for p in range(fc):
-                transrow = self.transmat[str_state-1,:]
-                pred_state = np.argmax(transrow)+1
+                transrow = self.transmat[str_state,:]
+                pred_state = np.argmax(transrow)
                 str_state = pred_state
                 forecasts[p-1] = self.bins[pred_state]
 #             str_state = np.zeros((1, self.M))
@@ -79,13 +79,13 @@ class Markov_model(object):
         str_state = self.states[-1]
         for p in range(fc):
             die = scipy.rand()
-            transrow = self.transmat[str_state-1,:]
+            transrow = self.transmat[str_state,:]
              
             csum = np.cumsum(np.append(0,transrow))
             if np.sum(csum) == 0:
                 pred_state = np.int_(scipy.rand()*self.M)
             else:
-                pred_state = np.argwhere(np.diff(csum <= die))[0][0] +1
+                pred_state = np.argwhere(np.diff(csum <= die))[0][0]
             str_state = pred_state
             forecasts[p] = self.bins[pred_state]
         return forecasts

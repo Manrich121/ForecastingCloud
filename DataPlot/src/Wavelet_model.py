@@ -78,7 +78,7 @@ class Wavelet_model(object):
         for i in range(len(self.order)):
  
 #             pred = self.models[i].predict(self.order[i])
-            pred = self.models[i].predictRandom(30)[:self.order[i]]
+            pred = self.models[i].predict(30)[:self.order[i]]
             coefs[i] = np.append(coefs[i], pred)
         index = np.power(2 , self.levels)
         forecasts = pywt.waverec(coefs, wavelet=self.bestType)[-index:-(index - fc)]
