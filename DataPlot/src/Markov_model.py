@@ -82,7 +82,10 @@ class Markov_model(object):
             transrow = self.transmat[str_state-1,:]
              
             csum = np.cumsum(np.append(0,transrow))
-            pred_state = np.argwhere(np.diff(csum <= die))[0][0] +1
+            if np.sum(csum) == 0:
+                pred_state = np.int_(scipy.rand()*self.M)
+            else:
+                pred_state = np.argwhere(np.diff(csum <= die))[0][0] +1
             str_state = pred_state
             forecasts[p] = self.bins[pred_state]
         return forecasts
