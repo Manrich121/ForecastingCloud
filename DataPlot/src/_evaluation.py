@@ -1,17 +1,16 @@
-# %matplotlib inline
 import fileutils
 import evaluation as eval
 import numpy as np
 import os
 from multiprocessing import Pool as ThreadPool 
 
-METHOD = "combo"
-TYPE = "memory"
+METHOD = "press"
+TYPE = "cpu2"
 
 def performEvaluations(filename, train_window = 3000, overload_dur = 5, overload_percentile = 70, steps=30):
         
     cur_results = []
-    forecasts = np.nan_to_num(np.genfromtxt("d:/data/"+TYPE+"_"+METHOD+"_forecasts/" + filename, delimiter=',')).ravel() # ,usecols=range(0,30)
+    forecasts = np.nan_to_num(np.genfromtxt("d:/data/"+TYPE+"_"+METHOD+"/" + filename, delimiter=',',usecols=range(0,30))).ravel() # ,usecols=range(0,30)
     truevals = np.genfromtxt("d:/data/"+TYPE+"/"+filename, delimiter=',',skip_header=1)[:train_window+len(forecasts),1]
     
     # Normalize
