@@ -8,7 +8,7 @@ from Wavelet_model import Wavelet_model
 
 from multiprocessing import Pool as ThreadPool 
 
-TYPE = "memory"
+TYPE = "memory4"
 
 def performsSlidingWindowForecast(filename, minpercentile=5, step=30, input_window=3000, predic_window=30):
     '''
