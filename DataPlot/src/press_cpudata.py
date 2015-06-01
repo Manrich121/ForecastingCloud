@@ -5,6 +5,8 @@ import Press_model
 
 from multiprocessing import Pool as ThreadPool 
 
+TYPE = "memory5"
+
 def performsSlidingWindowForecast(filename, minpercentile=5, step=30, input_window=3000, predic_window=30):
     '''
     Input window = 250 hours = 250*12 = 3000 
@@ -37,13 +39,13 @@ def performsSlidingWindowForecast(filename, minpercentile=5, step=30, input_wind
     for i in range(len(result)):
         res[i,:len(result[i])] = result[i] 
     f = filename.split('/')[-1]
-    fileutils.writeCSV("d:/data/cpu_press/"+f, np.atleast_2d(res))
+    fileutils.writeCSV("d:/data/"+TYPE+"_press/"+f, np.atleast_2d(res))
     print filename, "complete!"
 
 if __name__ == '__main__':
     aggregatedRmse = None
     pool = ThreadPool(4)
-    files =  fileutils.getFilelist("D:/data/cpu")
+    files =  fileutils.getFilelist("D:/data/"+TYPE)
     
     pool.map(performsSlidingWindowForecast, files)
     pool.close()
