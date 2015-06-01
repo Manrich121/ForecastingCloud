@@ -4,8 +4,8 @@ import numpy as np
 import os
 from multiprocessing import Pool as ThreadPool 
 
-METHOD = "press"
-TYPE = "memory4"
+METHOD = "ar"
+TYPE = "memory5"
 
 def performEvaluations(filename, train_window = 3000, overload_dur = 5, overload_percentile = 70, steps=30):
         
