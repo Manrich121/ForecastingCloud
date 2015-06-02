@@ -30,6 +30,7 @@ def performsSlidingWindowForecast(filename, minpercentile=5, step=30, input_wind
         else:
 #             y = data[strIndex:strIndex+input_window,1]
             y = data[input_window + strIndex - step:input_window + strIndex]
+            
             model.update(y)
         y_pred = model.predict(predic_window)
         y_pred[y_pred<0] = minimum

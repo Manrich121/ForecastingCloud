@@ -33,7 +33,7 @@ class HW_model:
         self.type = type
         self.alpha, self.beta, self.gamma = 0.0, 0.0, 0.0
         self.m = 0
-        self.data = data[:]
+        self.data = data[:].tolist()
         self.min = min
     
     def fit(self):
@@ -46,7 +46,7 @@ class HW_model:
         RMSE: Root Mean Squared Error of the model when fit to the data
         '''
         rmse = 0.0
-        y = self.data[:]
+        y = self.data
         
         if self.type == 'linear':
             initial_values = array([0.3, 0.1])
@@ -86,7 +86,7 @@ class HW_model:
         Updates the Holt-winters model by re-estimating the paramters {alpha, beta, gamma, m} depending
         on the model type
         '''
-        self.data = data[:]
+        self.data = data[:].tolist()
         y = self.data[:]
         if self.type == 'linear':
             initial_values = array([self.alpha, self.beta])
@@ -182,7 +182,7 @@ class HW_model:
         ''' Replace negative values'''
         predictions = np.array(Y[-fc:])
         predictions[np.argwhere(predictions<0)] = np.float_(self.min)
-        return predictions
+        return np.atleast_2d(predictions).T
    
     def RMSE(self,params, *args):
         '''
