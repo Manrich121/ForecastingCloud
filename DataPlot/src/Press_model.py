@@ -15,7 +15,7 @@ class Press_model(object):
     '''
 
 
-    def __init__(self, data, maximum, corr_tresh=0.85, mean_ratio=0.1, match_rate=1.0, filter_window=21):
+    def __init__(self, data, corr_tresh=0.85, mean_ratio=0.1, match_rate=1.0, filter_window=21):
         '''
         Create a Signature Pattern recognizer Markov based on PRESS's signature-driven method
         
@@ -27,6 +27,7 @@ class Press_model(object):
         @type corr_tresh: float
         @param mean_ratio: 
         '''
+        maximum = np.max(data)
         self.history = data[:]
         self.data = data[:]
         self.corr_thres = corr_tresh

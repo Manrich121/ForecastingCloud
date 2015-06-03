@@ -14,6 +14,7 @@ import Press_model
 import Wavelet_model
 import Markov_model
 
+import evaluation as eval
 from multiprocessing import Pool as ThreadPool 
  
 # Main definition - constants
@@ -25,13 +26,13 @@ TYPE = None
 METHOD = None
 
 
-def performsSlidingWindowForecast(params, minpercentile=5, step=30, input_window=3000, predic_window=30, order_=1):
+def performsSlidingWindowForecast(params, minpercentile=5, step=30, input_window=3000, predic_window=30):
     '''
     Input window = 250 hours = 250*12 = 3000 
     look ahead window 60 samples =  5 hours = 720min/5 = 60
     
     '''
-    filename, METHOD, TYPE, OUTPUT = params
+    filename, METHOD, TYPE, OUTPUT = params[:-1]
 #Wikidata
 #     data = np.genfromtxt(filename)
 #     data = data/np.max(data)
@@ -47,10 +48,10 @@ def performsSlidingWindowForecast(params, minpercentile=5, step=30, input_window
                 model = AR_model.AR_model(y, order=30)
             elif METHOD == 'hw':
                 model = HW_model.HW_model(y, minimum, 'additive')
-            elif METHOD == 'markov':
-                model = Markov_model.Markov_model(y, maximum=max, order=order_)
+            elif METHOD == 'markov1':
+                model = Markov_model.Markov_model(y, order=1)
             elif METHOD == 'press':
-                model = Press_model.Press_model(y, maximum=max)
+                model = Press_model.Press_model(y)
             elif METHOD == 'agile':
                 model = Wavelet_model(y)
             model.fit()
@@ -68,7 +69,29 @@ def performsSlidingWindowForecast(params, minpercentile=5, step=30, input_window
     fileutils.writeCSV(OUTPUT+TYPE+"_"+METHOD+"/"+f, np.atleast_2d(result))
     print filename, "complete!"
     
-# Back to main menu
+def performEvaluations(params, train_window = 3000, overload_dur = 5, overload_percentile = 70, steps=30):
+    
+    filename, METHOD, TYPE, OUTPUT, INPUT = params
+    filename = filename.split('/')[-1]
+    
+    cur_results = []
+    forecasts = np.nan_to_num(np.genfromtxt(INPUT+TYPE+"_"+METHOD+"/" + filename, delimiter=',',usecols=range(0,30))).ravel() # ,usecols=range(0,30)
+    truevals = np.genfromtxt(INPUT+TYPE+"/"+filename, delimiter=',',skip_header=1)[:train_window+len(forecasts),1]
+    
+    # Normalize
+#     truevals = np.divide(truevals, np.max(truevals))
+    
+    threshold =  np.percentile(truevals, overload_percentile)
+    
+    cur_results.append(eval.calc_RMSE(truevals[train_window:], forecasts))
+    for val in eval.calc_upper_lower_acc(truevals[train_window:], forecasts):
+        cur_results.append(val) 
+    for val in eval.calc_persample_accuracy(truevals[train_window:], forecasts, threshold):
+        cur_results.append(val)
+    for val in eval.calc_overload_states_acc(truevals[train_window:], forecasts, threshold):
+        cur_results.append(val)
+        
+    return cur_results
  
 # Exit program
 def exit():
@@ -78,7 +101,7 @@ def exit():
 methods_dict = {
     '1': 'hw',
     '2': 'ar',
-    '3': 'markov',
+    '3': 'markov1',
     '4': 'press',
     '5': 'agile',            
 }
@@ -120,7 +143,7 @@ def main():
     print "Please choose a method to evaluate:"
     print "1. Holt-Winters"
     print "2. Auto-regression"
-    print "3. Markov chain"
+    print "3. 1st Markov chain"
     print "4. PRESS"
     print "5. Agile"
 #     print "6. Combo: Average Model"
@@ -143,15 +166,21 @@ def main():
         params = []
         
         for f in files:
-            params.append([f, METHOD, TYPE, OUTPUT])
-        
-        
-#         performsSlidingWindowForecast(files[0])
+            params.append([f, METHOD, TYPE, OUTPUT, INPUT])
+#         performsSlidingWindowForecast(params[2])
         pool.map(performsSlidingWindowForecast, params)
         pool.close()
         pool.join()
-    
- 
+      
+        pool = ThreadPool(4)
+        results = pool.map(performEvaluations, params)
+        pool.close()
+        pool.join()
+            
+        fileutils.writeCSV(OUTPUT+"results/"+TYPE+"_"+METHOD+".csv", results)
+        print METHOD+" "+ TYPE + " complete"
+        
+        exit()
 # Main Program
 if __name__ == "__main__":
     main()
