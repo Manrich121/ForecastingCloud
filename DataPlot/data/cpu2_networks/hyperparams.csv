@@ -1,0 +1,3 @@
+['cpu_1273710', 0.079804061727956441, 18, 1.0224387301795708, 0.0, <class 'pybrain.structure.modules.tanhlayer.TanhLayer'>]
+['cpu_1094814', 0.067124063023746822, 12, 0.030273205731136284, 0.0, <class 'pybrain.structure.modules.tanhlayer.TanhLayer'>]
+['cpu_1189733520', 0.070998269091325353, 8, 0.032382511937205892, 3.2599143671117012e-07, <class 'pybrain.structure.modules.tanhlayer.TanhLayer'>]
