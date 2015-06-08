@@ -5,6 +5,7 @@ Created on 13 Nov 2014
 '''
 import numpy as np
 
+
 class Norm_model(object):
     '''
     Normal (Gaussian) distribution Model. 

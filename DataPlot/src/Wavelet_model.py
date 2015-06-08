@@ -3,10 +3,12 @@ Created on 03 Dec 2014
 
 @author: Manrich
 '''
-import numpy as np
 import pywt
+
 from AR_model import AR_model
 from Markov_model import Markov_model
+import numpy as np
+
 
 class Wavelet_model(object):
     '''

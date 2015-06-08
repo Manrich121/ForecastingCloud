@@ -1,12 +1,14 @@
 # %matplotlib inline
-import fileutils
-import tsutils
-import evaluation as eval
-import numpy as np
-import matplotlib.pyplot as plt
-import pandas as pd
-import os
 from multiprocessing import Pool as ThreadPool 
+import os
+
+import evaluation as eval
+import fileutils
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import tsutils
+
 
 def performEvaluations(filename, train_window = 3000, overload_dur = 5, overload_percentile = 70, steps=30):
     cur_results = []

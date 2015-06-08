@@ -5,25 +5,26 @@ Created on 04 Feb 2015
 '''
 from __future__ import print_function
 
-import numpy as np
-import scipy
-from matplotlib import pyplot as plt
-import evaluation as eval
-from sklearn.metrics import explained_variance_score
+from __builtin__ import xrange
+from multiprocessing import Pool 
 
+from matplotlib import pyplot as plt
 from pybrain.datasets import SupervisedDataSet
-from pybrain.tools.shortcuts import buildNetwork
-from pybrain.supervised.trainers import BackpropTrainer
-from pybrain.structure.modules import SigmoidLayer, TanhLayer
-from pybrain.tools.customxml.networkwriter import NetworkWriter
+from pybrain.structure import FullConnection, IdentityConnection, BiasUnit
 from pybrain.structure import RecurrentNetwork
 from pybrain.structure.modules import LinearLayer, SigmoidLayer, LSTMLayer, TanhLayer
-from pybrain.structure import FullConnection, IdentityConnection, BiasUnit
-
-from multiprocessing import Pool 
-from __builtin__ import xrange
+from pybrain.structure.modules import SigmoidLayer, TanhLayer
+from pybrain.supervised.trainers import BackpropTrainer
+from pybrain.tools.customxml.networkwriter import NetworkWriter
+from pybrain.tools.shortcuts import buildNetwork
+import scipy
+from sklearn.metrics import explained_variance_score
 from statsmodels.tsa.vector_ar.var_model import forecast
+
+import evaluation as eval
 import fileutils
+import numpy as np
+
 
 def sampleGeometrically(A, B):
     if A<B:

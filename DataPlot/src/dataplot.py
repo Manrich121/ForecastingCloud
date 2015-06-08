@@ -4,13 +4,15 @@ Created on 12 Sep 2014
 @author: Manrich
 '''
 
-from matplotlib import pyplot as plt
-
 from StringIO import StringIO
+from test.test_os import resource
+
+from matplotlib import pyplot as plt
+import scipy
+
 import fileutils
 import numpy as np
-from test.test_os import resource
-import scipy
+
 
 machines1 = ['4155527081','329150663','3938719206','351618647','431052910','257348783',
      '5655258253','3550322224','1303745','3894543095','336025676','3405236527',

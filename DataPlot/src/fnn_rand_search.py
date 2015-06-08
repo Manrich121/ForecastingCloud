@@ -5,22 +5,23 @@ Created on 04 Feb 2015
 '''
 from __future__ import print_function
 
-import numpy as np
-import scipy
-from matplotlib import pyplot as plt
-import evaluation as eval
-from sklearn.metrics import explained_variance_score
-
-from pybrain.datasets import SupervisedDataSet
-from pybrain.tools.shortcuts import buildNetwork
-from pybrain.supervised.trainers import BackpropTrainer
-from pybrain.structure.modules import SigmoidLayer, TanhLayer
-from pybrain.tools.customxml.networkwriter import NetworkWriter
-
-from multiprocessing import Pool 
 from __builtin__ import xrange
+from multiprocessing import Pool 
+
+from matplotlib import pyplot as plt
+from pybrain.datasets import SupervisedDataSet
+from pybrain.structure.modules import SigmoidLayer, TanhLayer
+from pybrain.supervised.trainers import BackpropTrainer
+from pybrain.tools.customxml.networkwriter import NetworkWriter
+from pybrain.tools.shortcuts import buildNetwork
+import scipy
+from sklearn.metrics import explained_variance_score
 from statsmodels.tsa.vector_ar.var_model import forecast
+
+import evaluation as eval
 import fileutils
+import numpy as np
+
 
 def sampleGeometrically(A, B):
     if A<B:
@@ -42,14 +43,12 @@ def trainFunc(params):
 
 if __name__ == '__main__':
     
-    files =  fileutils.getFilelist("d:/data/cpu2")
-    print(len(files))
-    for machine in files[1:10]:
+    files =  fileutils.getFilelist("d:/data/cpu3")[59:]
+    for machine in files:
         machine = machine.strip('.csv').split('/')[-1]
 #     machine = 'cpu_1437072475'
-#     print(machine)
-    
-        data = np.genfromtxt("d:/data/cpu2/"+machine+".csv",skip_header=1, delimiter=',',usecols=(1))
+        print(machine)
+        data = np.genfromtxt("d:/data/cpu3/"+machine+".csv",skip_header=1, delimiter=',',usecols=(1))
         
         TRAIN = 1000
         VALID = 100
@@ -77,7 +76,7 @@ if __name__ == '__main__':
         activation_func=[SigmoidLayer, TanhLayer]
         lamda_range=[1e-7, 1e-5]
         epochs_factor=1
-        miniters=100
+        miniters=80
         maxiters=1000  
         
         besthparams = []
@@ -138,8 +137,8 @@ if __name__ == '__main__':
     #     plt.title('Forecasts')
     #     plt.show()
     #     
-        NetworkWriter.writeToFile(bestnet, '../data/cpu2_networks/'+machine+".xml")
-        with open('../data/cpu2_networks/hyperparams.csv', mode='a') as f:
+        NetworkWriter.writeToFile(bestnet, '../data/cpu3_networks/'+machine+".xml")
+        with open('../data/cpu3_networks/hyperparams.csv', mode='a') as f:
             print([machine,besterr,besthparams[1],besthparams[3],besthparams[4],besthparams[2]], sep=',', end='\n', file=f)
     
     

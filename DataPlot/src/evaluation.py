@@ -4,9 +4,12 @@ Created on 07 Nov 2014
 @author: Manrich
 '''
 from __future__ import division
-import tsutils
-import numpy as np
+
 from sklearn.metrics import mean_squared_error
+
+import numpy as np
+import tsutils
+
 
 def calc_RMSE(y_true, y_fc, print_=False):
     '''

@@ -3,14 +3,15 @@ Created on 16 Feb 2015
 
 @author: Manrich
 '''
-import numpy as np
+from pybrain.datasets import SupervisedDataSet
+from pybrain.supervised.trainers import BackpropTrainer
+from pybrain.tools.customxml.networkreader import NetworkReader
+from pybrain.tools.shortcuts import buildNetwork
 import scipy
 
-from pybrain.tools.customxml.networkreader import NetworkReader
-from pybrain.datasets import SupervisedDataSet
-from pybrain.tools.shortcuts import buildNetwork
-from pybrain.supervised.trainers import BackpropTrainer
 import evaluation as eval
+import numpy as np
+
 
 class Rnn_model(object):
     '''

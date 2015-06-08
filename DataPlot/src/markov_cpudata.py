@@ -1,9 +1,10 @@
-import fileutils
-import numpy as np
-import matplotlib.pyplot as plt
-import Markov_model
-
 from multiprocessing import Pool as ThreadPool 
+
+import Markov_model
+import fileutils
+import matplotlib.pyplot as plt
+import numpy as np
+
 
 def performsSlidingWindowForecast(filename, minpercentile=5, step=30, input_window=3000, predic_window=30, order_=1):
     '''

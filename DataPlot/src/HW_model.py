@@ -9,12 +9,15 @@
 @author: Manrich
 '''
 
-from sys import exit
 from math import sqrt
+from sys import exit
+
 from numpy import array
-import numpy as np
 from scipy.optimize import fmin_l_bfgs_b
+
+import numpy as np
 import tsutils
+
 
 class HW_model:
     '''

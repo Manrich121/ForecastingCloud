@@ -1,11 +1,13 @@
-import fileutils
-import numpy as np
-import matplotlib.pyplot as plt
-import HW_model
+from multiprocessing import Pool as ThreadPool 
+
 from sklearn.metrics import mean_squared_error, r2_score
+
+import HW_model
+import fileutils
+import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 
-from multiprocessing import Pool as ThreadPool 
 
 def performsSlidingWindowForecast(filename, minpercentile=5, step=30, input_window=3000, predic_window=30):
     '''

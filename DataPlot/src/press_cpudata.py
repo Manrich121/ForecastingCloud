@@ -1,9 +1,10 @@
-import fileutils
-import numpy as np
-import matplotlib.pyplot as plt
-import Press_model
-
 from multiprocessing import Pool as ThreadPool 
+
+import Press_model
+import fileutils
+import matplotlib.pyplot as plt
+import numpy as np
+
 
 TYPE = "memory5"
 

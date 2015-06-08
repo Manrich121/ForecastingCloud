@@ -3,9 +3,11 @@ Created on 03 Nov 2014
 
 @author: Manrich
 '''
-import statsmodels.api as sm
-import numpy as np
 from scipy import signal
+
+import numpy as np
+import statsmodels.api as sm
+
 
 def findDominentSeason(y):
     '''

@@ -1,8 +1,10 @@
-import fileutils
-import evaluation as eval
-import numpy as np
-import os
 from multiprocessing import Pool as ThreadPool 
+import os
+
+import evaluation as eval
+import fileutils
+import numpy as np
+
 
 METHOD = "ar"
 TYPE = "memory5"

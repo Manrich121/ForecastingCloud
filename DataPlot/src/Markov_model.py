@@ -3,8 +3,10 @@ Created on 17 Nov 2014
 
 @author: Manrich
 '''
-import numpy as np
 import scipy
+
+import numpy as np
+
 
 class Markov_model(object):
     '''

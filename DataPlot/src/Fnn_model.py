@@ -3,21 +3,22 @@ Created on 16 Feb 2015
 
 @author: Manrich
 '''
-import numpy as np
+from pybrain.datasets import SupervisedDataSet
+from pybrain.supervised.trainers import BackpropTrainer
+from pybrain.tools.customxml.networkreader import NetworkReader
+from pybrain.tools.shortcuts import buildNetwork
 import scipy
 
-from pybrain.tools.customxml.networkreader import NetworkReader
-from pybrain.datasets import SupervisedDataSet
-from pybrain.tools.shortcuts import buildNetwork
-from pybrain.supervised.trainers import BackpropTrainer
 import evaluation as eval
+import numpy as np
+
 
 class Fnn_model(object):
     '''
     classdocs
     '''
 
-    def __init__(self, data, machineID, eta, lmda, input_size=30, epochs=20, train_str_index=1000, train_end_index=3000):
+    def __init__(self, data, machineID, netPath, eta, lmda, input_size=30, epochs=20, train_str_index=1000, train_end_index=3000):
         '''
         Constructor
         '''
@@ -29,7 +30,7 @@ class Fnn_model(object):
         self.epochs = epochs
         self.str_train = train_str_index
         self.end_train = train_end_index
-        self.net = NetworkReader.readFrom('../data/cpu_rnn_networks/'+machineID+".xml")
+        self.net = NetworkReader.readFrom(netPath)
 
         
     def fit(self):
@@ -71,4 +72,4 @@ class Fnn_model(object):
             forecasts.append(fc)
             unknown = np.append(unknown[1:], fc)
             
-        return np.array(forecasts)
+        return forecasts

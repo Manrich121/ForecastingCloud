@@ -1,12 +1,14 @@
-import fileutils
-import numpy as np
-import matplotlib.pyplot as plt
-import statsmodels.tsa as sm
-import statsmodels
-from sklearn.metrics import mean_squared_error, r2_score
-from Wavelet_model import Wavelet_model
-
 from multiprocessing import Pool as ThreadPool 
+
+from sklearn.metrics import mean_squared_error, r2_score
+import statsmodels
+
+from Wavelet_model import Wavelet_model
+import fileutils
+import matplotlib.pyplot as plt
+import numpy as np
+import statsmodels.tsa as sm
+
 
 TYPE = "memory5"
 

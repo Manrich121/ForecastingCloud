@@ -4,19 +4,20 @@ Created on 01 Jun 2015
 @author: Manrich
 '''
 
-import fileutils
-import numpy as np
-import sys, os
 import StringIO
+from multiprocessing import Pool as ThreadPool 
+import sys, os
+
 import AR_model
 import HW_model
+import Markov_model
 import Press_model
 import Wavelet_model
-import Markov_model
-
 import evaluation as eval
-from multiprocessing import Pool as ThreadPool 
- 
+import fileutils
+import numpy as np
+
+
 # Main definition - constants
 menu_actions  = {}  
 methods_dict = {}

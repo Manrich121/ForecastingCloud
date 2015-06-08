@@ -3,11 +3,13 @@ Created on 27 Nov 2014
 
 @author: Manrich
 '''
-import numpy as np
-from scipy import signal, stats
 import dtw
-import tsutils
+from scipy import signal, stats
+
 from Markov_model import Markov_model
+import numpy as np
+import tsutils
+
 
 class Press_model(object):
     '''

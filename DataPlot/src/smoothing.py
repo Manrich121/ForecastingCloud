@@ -4,9 +4,11 @@ Created on 19 Sep 2014
 @author: Manrich
 '''
 
-import numpy as np
-import holtwinters as hw
 from matplotlib import pyplot as plt
+
+import holtwinters as hw
+import numpy as np
+
 
 data = [362, 385,432, 341, 382, 409,
         498, 387, 473, 513, 582, 474,

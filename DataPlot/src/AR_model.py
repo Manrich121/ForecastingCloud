@@ -6,6 +6,7 @@ Created on 13 Nov 2014
 import numpy as np
 import statsmodels.api as sm
 
+
 class AR_model(object):
     '''
     Custom Autoregressive model. Model parameters calculated using the autocorrelation coefficients

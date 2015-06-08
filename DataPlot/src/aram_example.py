@@ -3,13 +3,14 @@ Created on 25 Sep 2014
 
 @author: Manrich
 '''
-import numpy as np
-from scipy import stats
 import pandas
-import matplotlib.pyplot as plt
-
-import statsmodels.api as sm
+from scipy import stats
 from statsmodels.graphics.api import qqplot
+
+import matplotlib.pyplot as plt
+import numpy as np
+import statsmodels.api as sm
+
 
 # Load data
 data = sm.datasets.sunspots.load_pandas().data
