@@ -26,17 +26,17 @@ def performsSlidingWindowForecast(filename_eta_lmda, minpercentile=5, step=30, i
     model.fit()
     
     pred = []
-    lastFc = None
+#     lastFc = 0
     for p in range(input_window, len(data)-predic_window,predic_window):
-        fc = model.predict(predic_window)
-        if lastFc is not None:
-            fc[0] = lastFc 
-        lastFc = fc[-1]
+        fc = np.array(model.predict(predic_window)).flatten()
+#         fc[-1] = lastFc
+#         lastFc = fc[0]
         fc[fc<0] = minimum
         pred.append(fc)
         model.update()
     
-    pred = np.array(pred)    
+    pred = np.array(pred)
+        
     f = filename.split('/')[-1]
     fileutils.writeCSV("d:/data/cpu2_fnn/"+f, np.atleast_2d(pred))
     print filename, "complete!"
@@ -44,11 +44,12 @@ def performsSlidingWindowForecast(filename_eta_lmda, minpercentile=5, step=30, i
 if __name__ == '__main__':
     root = "D:/data/cpu2/"
     pool = ThreadPool(4)
-    hyperparms =  np.genfromtxt("..\data\cpu2_networks\hyperparams.csv", delimiter=',', dtype=None, skip_header=1)
+    hyperparms =  np.genfromtxt("..\data\cpu2_networks\hyperparams.csv", delimiter=',', dtype=None)
     files_etas_lmads = []
     count =0
     for curRow in hyperparms:
         files_etas_lmads.append([root+curRow[0].strip("'")+".csv", curRow[3], curRow[4]])
+        
     performsSlidingWindowForecast(files_etas_lmads[0])
 #     pool.map(performsSlidingWindowForecast, files_etas_lmads)
 #     pool.close()

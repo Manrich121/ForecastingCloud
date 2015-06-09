@@ -13,6 +13,7 @@ import HW_model
 import Markov_model
 import Press_model
 import Wavelet_model
+import Fnn_model
 import evaluation as eval
 import fileutils
 import numpy as np
@@ -33,7 +34,7 @@ def performsSlidingWindowForecast(params, minpercentile=5, step=30, input_window
     look ahead window 60 samples =  5 hours = 720min/5 = 60
     
     '''
-    filename, METHOD, TYPE, OUTPUT = params[:-1]
+    filename, METHOD, TYPE, OUTPUT = params[0:4]
 #Wikidata
 #     data = np.genfromtxt(filename)
 #     data = data/np.max(data)
@@ -55,6 +56,11 @@ def performsSlidingWindowForecast(params, minpercentile=5, step=30, input_window
                 model = Press_model.Press_model(y)
             elif METHOD == 'agile':
                 model = Wavelet_model(y)
+            elif METHOD == 'fnn':
+                filename, METHOD, TYPE, OUTPUT, INPUT, curEta, curLmda = params[:7]
+ 
+                curMachine = filename.split('/')[-1]
+                model = Fnn_model.Fnn_model(data=data, machineID = curMachine, netPath="../data/"+TYPE+"_networks/"+curMachine.replace(".csv",".xml"), eta=curEta, lmda=curLmda)
             model.fit()
         else:
             if METHOD == 'press' or METHOD == 'markov':
@@ -63,7 +69,7 @@ def performsSlidingWindowForecast(params, minpercentile=5, step=30, input_window
                 y = data[strIndex:strIndex+input_window]
             model.update(y)
               
-        y_pred = model.predict(predic_window)
+        y_pred = np.atleast_2d(model.predict(predic_window))
         y_pred[y_pred[:,0]<0,0] = minimum
         result.append(y_pred[:,0])
     f = filename.split('/')[-1]
@@ -104,7 +110,8 @@ methods_dict = {
     '2': 'ar',
     '3': 'markov1',
     '4': 'press',
-    '5': 'agile',            
+    '5': 'agile',
+    '7': 'fnn',            
 }
  
 # =======================
@@ -148,7 +155,7 @@ def main():
     print "4. PRESS"
     print "5. Agile"
 #     print "6. Combo: Average Model"
-#     print "7. Combo: FFNN Model"
+    print "7. Combo: FFNN Model"
 #     print "0. Back"
     print "9. Quit"
     choice = raw_input(" >>  ")
@@ -165,23 +172,30 @@ def main():
         files =  fileutils.getFilelist(INPUT+TYPE)
         
         params = []
-        
-        for f in files:
-            params.append([f, METHOD, TYPE, OUTPUT, INPUT])
-#         performsSlidingWindowForecast(params[2])
+                    
+        if METHOD =='fnn':
+            hyperparms =  np.genfromtxt("../data/"+TYPE+"_networks/hyperparams.csv", delimiter=',', dtype=None)
+            for curRow in hyperparms:
+                params.append([INPUT+TYPE+'/'+curRow[0].strip("'")+".csv", METHOD, TYPE, OUTPUT, INPUT, curRow[3], curRow[4]])
+                    
+        else:
+            for f in files:
+                params.append([f, METHOD, TYPE, OUTPUT, INPUT])
+            
+#         performsSlidingWindowForecast(params[0])
         pool.map(performsSlidingWindowForecast, params)
         pool.close()
         pool.join()
-      
+       
         pool = ThreadPool(4)
         results = pool.map(performEvaluations, params)
         pool.close()
         pool.join()
-            
         fileutils.writeCSV(OUTPUT+"results/"+TYPE+"_"+METHOD+".csv", results)
         print METHOD+" "+ TYPE + " complete"
         
         exit()
 # Main Program
 if __name__ == "__main__":
+    
     main()

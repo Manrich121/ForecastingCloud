@@ -31,7 +31,6 @@ class Fnn_model(object):
         self.str_train = train_str_index
         self.end_train = train_end_index
         self.net = NetworkReader.readFrom(netPath)
-
         
     def fit(self):
         trainds = SupervisedDataSet(self.INPUT_SIZE, 1)
@@ -43,7 +42,7 @@ class Fnn_model(object):
                     
         trainer = None
         
-    def update(self):
+    def update(self,fc):
         # Increment training indexes 
         self.str_train = self.end_train
         self.end_train += self.INPUT_SIZE
