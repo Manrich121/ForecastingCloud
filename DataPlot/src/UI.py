@@ -78,7 +78,7 @@ def performsSlidingWindowForecast(params, minpercentile=5, step=30, input_window
     
 def performEvaluations(params, train_window = 3000, overload_dur = 5, overload_percentile = 70, steps=30):
     
-    filename, METHOD, TYPE, OUTPUT, INPUT = params
+    filename, METHOD, TYPE, OUTPUT, INPUT = params[:5]
     filename = filename.split('/')[-1]
     
     cur_results = []
@@ -182,11 +182,11 @@ def main():
             for f in files:
                 params.append([f, METHOD, TYPE, OUTPUT, INPUT])
             
-#         performsSlidingWindowForecast(params[0])
+        performsSlidingWindowForecast(params[0])
         pool.map(performsSlidingWindowForecast, params)
         pool.close()
         pool.join()
-       
+        
         pool = ThreadPool(4)
         results = pool.map(performEvaluations, params)
         pool.close()
