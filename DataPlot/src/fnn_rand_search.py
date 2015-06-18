@@ -43,12 +43,12 @@ def trainFunc(params):
 
 if __name__ == '__main__':
     
-    files =  fileutils.getFilelist("d:/data/cpu4")[40:]
+    files =  fileutils.getFilelist("d:/data/cpu5")
     for machine in files:
         machine = machine.strip('.csv').split('/')[-1]
 #     machine = 'cpu_1437072475'
         print(machine)
-        data = np.genfromtxt("d:/data/cpu4/"+machine+".csv",skip_header=1, delimiter=',',usecols=(1))
+        data = np.genfromtxt("d:/data/cpu5/"+machine+".csv",skip_header=1, delimiter=',',usecols=(1))
         
         TRAIN = 1000
         VALID = 100
@@ -137,8 +137,8 @@ if __name__ == '__main__':
     #     plt.title('Forecasts')
     #     plt.show()
     #     
-        NetworkWriter.writeToFile(bestnet, '../data/cpu4_networks/'+machine+".xml")
-        with open('../data/cpu4_networks/hyperparams.csv', mode='a') as f:
+        NetworkWriter.writeToFile(bestnet, '../data/cpu5_networks/'+machine+".xml")
+        with open('../data/cpu5_networks/hyperparams.csv', mode='a') as f:
             print([machine,besterr,besthparams[1],besthparams[3],besthparams[4],besthparams[2]], sep=',', end='\n', file=f)
     
     
