@@ -78,9 +78,11 @@ class Markov_model(object):
 #                 forecasts[p] = self.bins[np.argmax(transrow) +1]
 #                 trans = np.dot(self.transmat, trans)
         elif self.order == 2:
-            prev_state = self.states[-2]
+            prev_state = self.states[-1]
+            if prev_state == self.M:
+                prev_state = self.M-1
             for p in range(fc):
-                pred = np.argmax(self.transmat[prev_state-1, str_state-1]) +1
+                pred = np.argmax(self.transmat[prev_state, str_state])
                 prev_state = str_state
                 str_state = pred
                 forecasts[p] = self.bins[pred]

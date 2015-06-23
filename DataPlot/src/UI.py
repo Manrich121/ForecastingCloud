@@ -53,6 +53,8 @@ def performsSlidingWindowForecast(params, minpercentile=5, step=30, input_window
                 model = HW_model.HW_model(y, minimum, 'additive')
             elif METHOD == 'markov1':
                 model = Markov_model.Markov_model(y, order=1)
+            elif METHOD == 'markov2':
+                model = Markov_model.Markov_model(y, order=2)
             elif METHOD == 'press':
                 model = Press_model.Press_model(y)
             elif METHOD == 'agile':
@@ -194,18 +196,18 @@ def main():
             for f in files:
                 params.append([f, METHOD, TYPE, OUTPUT, INPUT])
             
-#         performsSlidingWindowForecast(params[0])
+#         performsSlidingWindowForecast(params[3])
         pool.map(performsSlidingWindowForecast, params)
         pool.close()
         pool.join()
-         
+          
         pool = ThreadPool(4)
         results = pool.map(performEvaluations, params)
         pool.close()
         pool.join()
         fileutils.writeCSV(OUTPUT+"results/"+TYPE+"_"+METHOD+".csv", results)
         print METHOD+" "+ TYPE + " complete"
-        
+         
         exit()
 # Main Program
 if __name__ == "__main__":
