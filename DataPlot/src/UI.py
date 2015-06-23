@@ -14,6 +14,7 @@ import Markov_model
 import Press_model
 import Wavelet_model
 import Fnn_model
+import Rnn_model
 import evaluation as eval
 import fileutils
 import numpy as np
@@ -58,9 +59,12 @@ def performsSlidingWindowForecast(params, minpercentile=5, step=30, input_window
                 model = Wavelet_model(y)
             elif METHOD == 'fnn':
                 filename, METHOD, TYPE, OUTPUT, INPUT, curEta, curLmda = params[:7]
- 
                 curMachine = filename.split('/')[-1]
                 model = Fnn_model.Fnn_model(data=data, machineID = curMachine, netPath="../data/"+TYPE+"_networks/"+curMachine.replace(".csv",".xml"), eta=curEta, lmda=curLmda)
+            elif METHOD == 'rnn':
+                curMachine = filename.split('/')[-1]
+                filename, METHOD, TYPE, OUTPUT, INPUT, curEta, curLmda = params[:7]
+                model = Rnn_model.Rnn_model(data=data, machineID = curMachine, netPath="../data/"+TYPE+"_rnn_networks/"+curMachine.replace(".csv",".xml"), eta=curEta, lmda=curLmda)
             model.fit()
         else:
             if METHOD == 'press' or METHOD == 'markov':
@@ -109,9 +113,11 @@ methods_dict = {
     '1': 'hw',
     '2': 'ar',
     '3': 'markov1',
-    '4': 'press',
-    '5': 'agile',
-    '7': 'fnn',            
+    '4': 'markov2',
+    '5': 'press',
+    '6': 'agile',
+    '7': 'fnn',  
+    '8': 'rnn',          
 }
  
 # =======================
@@ -152,10 +158,12 @@ def main():
     print "1. Holt-Winters"
     print "2. Auto-regression"
     print "3. 1st Markov chain"
-    print "4. PRESS"
-    print "5. Agile"
+    print "4. 2nd Markov chain"
+    print "5. PRESS"
+    print "6. Agile"
 #     print "6. Combo: Average Model"
-    print "7. Combo: FFNN Model"
+    print "7. FFNN Model"
+    print "8. RNN Model"
 #     print "0. Back"
     print "9. Quit"
     choice = raw_input(" >>  ")
@@ -178,15 +186,19 @@ def main():
             for curRow in hyperparms:
                 params.append([INPUT+TYPE+'/'+curRow[0].strip("'")+".csv", METHOD, TYPE, OUTPUT, INPUT, curRow[3], curRow[4]])
                     
+        elif METHOD =='rnn':
+            hyperparms =  np.genfromtxt("../data/"+TYPE+"_rnn_networks/hyperparams.csv", delimiter=',', dtype=None)
+            for curRow in hyperparms:
+                params.append([INPUT+TYPE+'/'+curRow[0].strip("'")+".csv", METHOD, TYPE, OUTPUT, INPUT, curRow[3], curRow[4]])
         else:
             for f in files:
                 params.append([f, METHOD, TYPE, OUTPUT, INPUT])
             
-        performsSlidingWindowForecast(params[0])
+#         performsSlidingWindowForecast(params[0])
         pool.map(performsSlidingWindowForecast, params)
         pool.close()
         pool.join()
-        
+         
         pool = ThreadPool(4)
         results = pool.map(performEvaluations, params)
         pool.close()

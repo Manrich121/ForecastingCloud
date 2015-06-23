@@ -42,7 +42,7 @@ class Fnn_model(object):
                     
         trainer = None
         
-    def update(self,fc):
+    def update(self, data):
         # Increment training indexes 
         self.str_train = self.end_train
         self.end_train += self.INPUT_SIZE

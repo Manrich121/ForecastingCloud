@@ -18,7 +18,7 @@ class Rnn_model(object):
     classdocs
     '''
 
-    def __init__(self, data, machineID, eta, lmda, input_size=30, epochs=20, train_str_index=1000, train_end_index=3000):
+    def __init__(self, data, machineID, eta, lmda, netPath, input_size=30, epochs=20, train_str_index=1000, train_end_index=3000):
         '''
         Constructor
         '''
@@ -30,7 +30,7 @@ class Rnn_model(object):
         self.epochs = epochs
         self.str_train = train_str_index
         self.end_train = train_end_index
-        self.net = NetworkReader.readFrom('../data/cpu_rnn_networks/'+machineID+".xml")
+        self.net = NetworkReader.readFrom(netPath)
 
         
     def fit(self):
@@ -43,7 +43,7 @@ class Rnn_model(object):
                     
         trainer = None
         
-    def update(self):
+    def update(self, data):
         # Increment training indexes 
         self.str_train = self.end_train
         self.end_train += self.INPUT_SIZE
