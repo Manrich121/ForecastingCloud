@@ -62,11 +62,21 @@ def performsSlidingWindowForecast(params, minpercentile=5, step=30, input_window
             elif METHOD == 'fnn':
                 filename, METHOD, TYPE, OUTPUT, INPUT, curEta, curLmda = params[:7]
                 curMachine = filename.split('/')[-1]
-                model = Fnn_model.Fnn_model(data=data, machineID = curMachine, netPath="../data/"+TYPE+"_networks/"+curMachine.replace(".csv",".xml"), eta=curEta, lmda=curLmda)
+                if TYPE.startswith("memory"):
+                    curMachine = curMachine.replace("memory", "cpu")
+                    model = Fnn_model.Fnn_model(data=data, machineID = curMachine, netPath="../data/"+TYPE.replace("memory", "cpu")+"_networks/"+curMachine.replace(".csv",".xml"), eta=curEta, lmda=curLmda)
+                else:
+                    model = Fnn_model.Fnn_model(data=data, machineID = curMachine, netPath="../data/"+TYPE+"_networks/"+curMachine.replace(".csv",".xml"), eta=curEta, lmda=curLmda)
             elif METHOD == 'rnn':
-                curMachine = filename.split('/')[-1]
                 filename, METHOD, TYPE, OUTPUT, INPUT, curEta, curLmda = params[:7]
-                model = Rnn_model.Rnn_model(data=data, machineID = curMachine, netPath="../data/"+TYPE+"_rnn_networks/"+curMachine.replace(".csv",".xml"), eta=curEta, lmda=curLmda)
+                curMachine = filename.split('/')[-1]
+                if TYPE.startswith("memory"):
+                    curMachine = curMachine.replace("memory", "cpu")
+                    model = Fnn_model.Fnn_model(data=data, machineID = curMachine, netPath="../data/"+TYPE.replace("memory", "cpu")+"_networks/"+curMachine.replace(".csv",".xml"), eta=curEta, lmda=curLmda)
+                else:
+                    model = Fnn_model.Fnn_model(data=data, machineID = curMachine, netPath="../data/"+TYPE+"_rnn_networks/"+curMachine.replace(".csv",".xml"), eta=curEta, lmda=curLmda)
+                
+#                 model = Rnn_model.Rnn_model(data=data, machineID = curMachine, netPath="../data/"+TYPE+"_rnn_networks/"+curMachine.replace(".csv",".xml"), eta=curEta, lmda=curLmda)
             model.fit()
         else:
             if METHOD == 'press' or METHOD == 'markov':
@@ -182,25 +192,42 @@ def main():
         files =  fileutils.getFilelist(INPUT+TYPE)
         
         params = []
+        
                     
         if METHOD =='fnn':
-            hyperparms =  np.genfromtxt("../data/"+TYPE+"_networks/hyperparams.csv", delimiter=',', dtype=None)
+            if TYPE.startswith("memory"):
+                hyperpath = "../data/"+TYPE.replace("memory", "cpu")+"_networks/hyperparams.csv"
+            else:
+                hyperpath = "../data/"+TYPE+"_networks/hyperparams.csv"
+            hyperparms =  np.genfromtxt(hyperpath, delimiter=',', dtype=None)
             for curRow in hyperparms:
-                params.append([INPUT+TYPE+'/'+curRow[0].strip("'")+".csv", METHOD, TYPE, OUTPUT, INPUT, curRow[3], curRow[4]])
+                if TYPE.startswith("memory"):
+                    params.append([INPUT+TYPE+'/'+curRow[0].replace("cpu", "memory").strip("'")+".csv", METHOD, TYPE, OUTPUT, INPUT, curRow[3], curRow[4]])
+                else:
+                    params.append([INPUT+TYPE+'/'+curRow[0].strip("'")+".csv", METHOD, TYPE, OUTPUT, INPUT, curRow[3], curRow[4]])
                     
         elif METHOD =='rnn':
-            hyperparms =  np.genfromtxt("../data/"+TYPE+"_rnn_networks/hyperparams.csv", delimiter=',', dtype=None)
+            
+            if TYPE.startswith("memory"):
+                hyperpath = "../data/"+TYPE.replace("memory", "cpu")+"_rnn_networks/hyperparams.csv"
+            else:
+                hyperpath = "../data/"+TYPE+"_rnn_networks/hyperparams.csv"
+            hyperparms =  np.genfromtxt(hyperpath, delimiter=',', dtype=None)
             for curRow in hyperparms:
-                params.append([INPUT+TYPE+'/'+curRow[0].strip("'")+".csv", METHOD, TYPE, OUTPUT, INPUT, curRow[3], curRow[4]])
+                if TYPE.startswith("memory"):
+                    params.append([INPUT+TYPE+'/'+curRow[0].replace("cpu", "memory").strip("'")+".csv", METHOD, TYPE, OUTPUT, INPUT, curRow[3], curRow[4]])
+                else:
+                    params.append([INPUT+TYPE+'/'+curRow[0].strip("'")+".csv", METHOD, TYPE, OUTPUT, INPUT, curRow[3], curRow[4]])
+                
         else:
             for f in files:
                 params.append([f, METHOD, TYPE, OUTPUT, INPUT])
             
-#         performsSlidingWindowForecast(params[3])
+#         performsSlidingWindowForecast(params[0])
         pool.map(performsSlidingWindowForecast, params)
         pool.close()
         pool.join()
-          
+           
         pool = ThreadPool(4)
         results = pool.map(performEvaluations, params)
         pool.close()
