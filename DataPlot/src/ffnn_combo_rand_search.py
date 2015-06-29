@@ -74,8 +74,7 @@ def trainFunc(params):
 if __name__ == '__main__':
     
     files =  fileutils.getFilelist("d:/data/cpu")
-    for machine in files[14
-                         :16]:
+    for machine in files[14:16]:
         curMachine = machine.strip('.csv').split('/')[-1]
         print(curMachine)
         cpuData = np.genfromtxt("d:/data/cpu/"+curMachine+".csv",delimiter=',',skip_header=1,usecols=(1))

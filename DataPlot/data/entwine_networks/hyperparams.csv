@@ -1,0 +1,16 @@
+'cpu_1095481', 0.074132992931632669, 9, 0.056022939408790121, 0.0, <class 'pybrain.structure.modules.sigmoidlayer.SigmoidLayer'>
+'cpu_124596184', 0.038426589798915653, 4, 7.7733874757014423, 1.5354221841259132e-07, <class 'pybrain.structure.modules.sigmoidlayer.SigmoidLayer'>
+'cpu_1268205', 0.030618640268987182, 5, 2.2982728380596709, 0.0, <class 'pybrain.structure.modules.tanhlayer.TanhLayer'>
+'cpu_1269048', 0.044152756228092158, 16, 0.087244736382958876, 8.8178392715314043e-06, <class 'pybrain.structure.modules.tanhlayer.TanhLayer'>
+'cpu_1301871', 0.045291800045719553, 6, 0.00052909761533259756, 8.3694161344150296e-07, <class 'pybrain.structure.modules.sigmoidlayer.SigmoidLayer'>
+'cpu_1303745', 0.062165806023252675, 22, 0.053931682741444241, 0.0, <class 'pybrain.structure.modules.tanhlayer.TanhLayer'>
+'cpu_1331706', 0.059757809202873401, 19, 0.15751109295182644, 0.0, <class 'pybrain.structure.modules.tanhlayer.TanhLayer'>
+'cpu_1335648', 0.10289773532096871, 11, 0.00070197882315625672, 0.0, <class 'pybrain.structure.modules.tanhlayer.TanhLayer'>
+'cpu_1335782', 0.062383966584245797, 13, 0.4733581965655817, 0.0, <class 'pybrain.structure.modules.sigmoidlayer.SigmoidLayer'>
+'cpu_1338948', 0.064202071538518216, 8, 0.00023164039815733585, 7.4571881081169024e-07, <class 'pybrain.structure.modules.tanhlayer.TanhLayer'>
+'cpu_1436348411', 0.098044619523344492, 7, 0.00067734462450897814, 0.0, <class 'pybrain.structure.modules.tanhlayer.TanhLayer'>
+'cpu_1437072475', 0.031179384426167286, 6, 0.012099872445456135, 1.9471772103593464e-06, <class 'pybrain.structure.modules.sigmoidlayer.SigmoidLayer'>
+'cpu_1439356567', 0.035154375053604893, 5, 1.4828607679135068, 1.3869420697478332e-06, <class 'pybrain.structure.modules.tanhlayer.TanhLayer'>
+'cpu_1442486585', 0.08956327969060611, 8, 0.11130789587109285, 5.8499472366453564e-06, <class 'pybrain.structure.modules.tanhlayer.TanhLayer'>
+'cpu_155313295', 0.039119677431608463, 22, 0.065151521772076934, 0.0, <class 'pybrain.structure.modules.sigmoidlayer.SigmoidLayer'>
+'cpu_1664088958', 0.064395197564929285, 16, 0.11940879770098493, 2.654115847216362e-06, <class 'pybrain.structure.modules.tanhlayer.TanhLayer'>

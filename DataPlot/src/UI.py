@@ -15,6 +15,7 @@ import Press_model
 import Wavelet_model
 import Fnn_model
 import Rnn_model
+import Entwine_model
 import evaluation as eval
 import fileutils
 import numpy as np
@@ -75,8 +76,13 @@ def performsSlidingWindowForecast(params, minpercentile=5, step=30, input_window
                     model = Fnn_model.Fnn_model(data=data, machineID = curMachine, netPath="../data/"+TYPE.replace("memory", "cpu")+"_networks/"+curMachine.replace(".csv",".xml"), eta=curEta, lmda=curLmda)
                 else:
                     model = Fnn_model.Fnn_model(data=data, machineID = curMachine, netPath="../data/"+TYPE+"_rnn_networks/"+curMachine.replace(".csv",".xml"), eta=curEta, lmda=curLmda)
+            elif METHOD == 'entwine':
+                filename, METHOD, TYPE, OUTPUT, INPUT, curEta, curLmda = params[:7]
+                curMachine = filename.split('/')[-1]
+                data2 = np.nan_to_num(np.genfromtxt(filename.replace("cpu", "memory"), delimiter=',', skip_header=1)[:,1]).ravel()
                 
-#                 model = Rnn_model.Rnn_model(data=data, machineID = curMachine, netPath="../data/"+TYPE+"_rnn_networks/"+curMachine.replace(".csv",".xml"), eta=curEta, lmda=curLmda)
+                model = Entwine_model.Entwine_model([data, data2], machineID = curMachine, netPath="../data/entwine_networks/"+curMachine.replace(".csv",".xml"), eta=curEta, lmda=curLmda)
+                
             model.fit()
         else:
             if METHOD == 'press' or METHOD == 'markov':
@@ -129,7 +135,8 @@ methods_dict = {
     '5': 'press',
     '6': 'agile',
     '7': 'fnn',  
-    '8': 'rnn',          
+    '8': 'rnn', 
+    '9': 'entwine',         
 }
  
 # =======================
@@ -173,17 +180,16 @@ def main():
     print "4. 2nd Markov chain"
     print "5. PRESS"
     print "6. Agile"
-#     print "6. Combo: Average Model"
     print "7. FFNN Model"
     print "8. RNN Model"
-#     print "0. Back"
-    print "9. Quit"
+    print "9. Entwine Model"
+    print "0. Quit"
     choice = raw_input(" >>  ")
     ch = choice.lower();
     
     if ch == '':
         menu_actions['main_menu']()
-    elif ch == '9':
+    elif ch == '0':
         exit()
     else:
         METHOD = methods_dict[ch]
@@ -218,23 +224,29 @@ def main():
                     params.append([INPUT+TYPE+'/'+curRow[0].replace("cpu", "memory").strip("'")+".csv", METHOD, TYPE, OUTPUT, INPUT, curRow[3], curRow[4]])
                 else:
                     params.append([INPUT+TYPE+'/'+curRow[0].strip("'")+".csv", METHOD, TYPE, OUTPUT, INPUT, curRow[3], curRow[4]])
+                    
+        elif METHOD == 'entwine':
+            hyperpath = "../data/entwine_networks/hyperparams.csv"
+            hyperparms =  np.genfromtxt(hyperpath, delimiter=',', dtype=None)
+            for curRow in hyperparms:
+                params.append([INPUT+TYPE+'/'+curRow[0].strip("'")+".csv", METHOD, TYPE, OUTPUT, INPUT, curRow[3], curRow[4]])
                 
         else:
             for f in files:
                 params.append([f, METHOD, TYPE, OUTPUT, INPUT])
             
-#         performsSlidingWindowForecast(params[0])
-        pool.map(performsSlidingWindowForecast, params)
-        pool.close()
-        pool.join()
-           
-        pool = ThreadPool(4)
-        results = pool.map(performEvaluations, params)
-        pool.close()
-        pool.join()
-        fileutils.writeCSV(OUTPUT+"results/"+TYPE+"_"+METHOD+".csv", results)
-        print METHOD+" "+ TYPE + " complete"
-         
+        performsSlidingWindowForecast(params[0])
+#         pool.map(performsSlidingWindowForecast, params)
+#         pool.close()
+#         pool.join()
+#            
+#         pool = ThreadPool(4)
+#         results = pool.map(performEvaluations, params)
+#         pool.close()
+#         pool.join()
+#         fileutils.writeCSV(OUTPUT+"results/"+TYPE+"_"+METHOD+".csv", results)
+#         print METHOD+" "+ TYPE + " complete"
+#          
         exit()
 # Main Program
 if __name__ == "__main__":
