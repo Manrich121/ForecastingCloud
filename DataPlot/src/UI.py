@@ -21,6 +21,10 @@ import evaluation as eval
 import fileutils
 import numpy as np
 
+from pybrain.datasets import SupervisedDataSet
+from pybrain.tools.shortcuts import buildNetwork
+from pybrain.supervised.trainers import BackpropTrainer
+from pybrain.structure.modules import SigmoidLayer, LinearLayer
 
 # Main definition - constants
 menu_actions  = {}  
@@ -101,11 +105,71 @@ def performsSlidingWindowForecast(params, minpercentile=5, step=30, input_window
     f = filename.split('/')[-1]
     fileutils.writeCSV(OUTPUT+TYPE+"_"+METHOD+"/"+f, np.atleast_2d(result))
     print filename, "complete!"
+     
+def ensembleModel(params, types=['ma','ar','fnn'], step=30, input_window=3000):
+    filename, METHOD, TYPE, OUTPUT = params[0:4]
+    filename = filename.split('/')[-1]
+    
+    filename, METHOD, TYPE, OUTPUT = params[0:4]
+    filename = filename.split('/')[-1]    
+    
+    combine_model = np.genfromtxt(OUTPUT+TYPE+"_"+types[0]+"/"+filename, delimiter=',', usecols=range(0,30)).ravel()
+    truevals = np.nan_to_num(np.genfromtxt(OUTPUT+TYPE+"/"+filename, delimiter=',',skip_header=1, usecols=(1))[:input_window+len(combine_model)])
+        
+    for t in types[1:]:
+        forecasts = np.genfromtxt(OUTPUT+TYPE+"_"+t+"/"+filename, delimiter=',', usecols=range(0,30)).ravel()
+        combine_model = np.vstack((combine_model, forecasts))
+        
+    average_fc = np.average(combine_model, axis=0)
+    
+    if METHOD == 'avg':
+        fileutils.writeCSV(OUTPUT+TYPE+"_"+METHOD+"/"+filename, np.atleast_2d(average_fc).reshape([178,30]))
+        print filename, "complete"
+        return
+    if METHOD == 'combo':
+        training = SupervisedDataSet(3, 1)
+        for i in range(step):
+            training.appendLinked([combine_model[0][i], combine_model[1][i], combine_model[2][i]], truevals[i+input_window])
+            
+        besterr = eval.calc_RMSE(truevals[input_window:input_window+step], average_fc[:step])
+        bestNet = None
+        
+        for i in range(50):
+            net = buildNetwork(3, 2, 1, hiddenclass=LinearLayer, bias=False)
+            trainer = BackpropTrainer(net, training, learningrate=0.001, shuffle=False)
+            trainer.trainEpochs(200)
+    
+            err = eval.calc_RMSE(truevals[input_window:input_window+step], net.activateOnDataset(training))
+            if err < besterr:
+                bestNet = net
+                break
+            
+        combo_fc = average_fc[0:step].tolist()
+#         combo_fc = []
+        if bestNet == None:
+            combo_fc = average_fc
+        else:
+            for i in range(step, len(combine_model[0]), step):
+                training = SupervisedDataSet(3, 1)
+                for j in range(i,i+step):
+                    combo_fc.append(bestNet.activate([combine_model[0][j], combine_model[1][j], combine_model[2][j]])[0])
+                    training.appendLinked([combine_model[0][j], combine_model[1][j], combine_model[2][j]], truevals[j+input_window])
+                trainer = BackpropTrainer(bestNet, training, learningrate=0.01, shuffle=False)
+                trainer.trainEpochs(1)
+                
+        result  = np.atleast_2d(combo_fc).reshape([178,30])
+        minimum = np.percentile(truevals,5)
+        result[0,result[0,:] < minimum] = minimum 
+        
+        fileutils.writeCSV(OUTPUT+TYPE+"_combo/"+filename, result)
+        print filename, "complete"
+    
     
 def performEvaluations(params, train_window = 3000, overload_dur = 5, overload_percentile = 70, steps=30):
     
     filename, METHOD, TYPE, OUTPUT, INPUT = params[:5]
     filename = filename.split('/')[-1]
+    print filename, "started..."
     
     cur_results = []
     forecasts = np.nan_to_num(np.genfromtxt(INPUT+TYPE+"_"+METHOD+"/" + filename, delimiter=',',usecols=range(0,30))).ravel() # ,usecols=range(0,30)
@@ -141,7 +205,9 @@ methods_dict = {
     '7': 'fnn',  
     '8': 'rnn', 
     '9': 'entwine', 
-    '10': 'ma',        
+    '10': 'ma',
+    '11': 'avg',
+    '12': 'combo',       
 }
  
 # =======================
@@ -189,6 +255,8 @@ def main():
     print "8. RNN Model"
     print "9. Entwine Model"
     print "10. Moving Average"
+    print "11. Average combo Model"
+    print "12. FFNN combo Model"
     print "0. Quit"
     choice = raw_input(" >>  ")
     ch = choice.lower();
@@ -238,12 +306,18 @@ def main():
         else:
             for f in files:
                 params.append([f, METHOD, TYPE, OUTPUT, INPUT])
-            
-#         performsSlidingWindowForecast(params[0])
-        pool.map(performsSlidingWindowForecast, params)
-        pool.close()
-        pool.join()
-            
+        
+        if METHOD == 'avg' or METHOD == 'combo':
+#             ensembleModel(params[0])
+            pool.map(ensembleModel,params)
+            pool.close()
+            pool.join()
+        else:
+    #         performsSlidingWindowForecast(params[0])
+            pool.map(performsSlidingWindowForecast, params)
+            pool.close()
+            pool.join()
+             
         pool = ThreadPool(4)
         results = pool.map(performEvaluations, params)
         pool.close()
