@@ -8,6 +8,7 @@ import StringIO
 from multiprocessing import Pool as ThreadPool 
 import sys, os
 
+import MA_model
 import AR_model
 import HW_model
 import Markov_model
@@ -40,6 +41,7 @@ def performsSlidingWindowForecast(params, minpercentile=5, step=30, input_window
 #Wikidata
 #     data = np.genfromtxt(filename)
 #     data = data/np.max(data)
+
     data = np.nan_to_num(np.genfromtxt(filename, delimiter=',', skip_header=1)[:,1]).ravel()
     minimum = np.percentile(data,minpercentile)
     N = len(data)
@@ -50,6 +52,8 @@ def performsSlidingWindowForecast(params, minpercentile=5, step=30, input_window
             y = data[:input_window]
             if METHOD == 'ar':
                 model = AR_model.AR_model(y, order=30)
+            elif METHOD == 'ma':
+                model = MA_model.MA_model(y,order=30)
             elif METHOD == 'hw':
                 model = HW_model.HW_model(y, minimum, 'additive')
             elif METHOD == 'markov1':
@@ -136,7 +140,8 @@ methods_dict = {
     '6': 'agile',
     '7': 'fnn',  
     '8': 'rnn', 
-    '9': 'entwine',         
+    '9': 'entwine', 
+    '10': 'ma',        
 }
  
 # =======================
@@ -183,6 +188,7 @@ def main():
     print "7. FFNN Model"
     print "8. RNN Model"
     print "9. Entwine Model"
+    print "10. Moving Average"
     print "0. Quit"
     choice = raw_input(" >>  ")
     ch = choice.lower();
@@ -196,10 +202,8 @@ def main():
 
         pool = ThreadPool(4)
         files =  fileutils.getFilelist(INPUT+TYPE)
-        
-        params = []
-        
-                    
+                
+        params = []  
         if METHOD =='fnn':
             if TYPE.startswith("memory"):
                 hyperpath = "../data/"+TYPE.replace("memory", "cpu")+"_networks/hyperparams.csv"
@@ -235,18 +239,18 @@ def main():
             for f in files:
                 params.append([f, METHOD, TYPE, OUTPUT, INPUT])
             
-        performsSlidingWindowForecast(params[0])
-#         pool.map(performsSlidingWindowForecast, params)
-#         pool.close()
-#         pool.join()
-#            
-#         pool = ThreadPool(4)
-#         results = pool.map(performEvaluations, params)
-#         pool.close()
-#         pool.join()
-#         fileutils.writeCSV(OUTPUT+"results/"+TYPE+"_"+METHOD+".csv", results)
-#         print METHOD+" "+ TYPE + " complete"
-#          
+#         performsSlidingWindowForecast(params[0])
+        pool.map(performsSlidingWindowForecast, params)
+        pool.close()
+        pool.join()
+            
+        pool = ThreadPool(4)
+        results = pool.map(performEvaluations, params)
+        pool.close()
+        pool.join()
+        fileutils.writeCSV(OUTPUT+"results/"+TYPE+"_"+METHOD+".csv", results)
+        print METHOD+" "+ TYPE + " complete"
+          
         exit()
 # Main Program
 if __name__ == "__main__":

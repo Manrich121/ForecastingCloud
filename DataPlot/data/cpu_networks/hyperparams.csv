@@ -1,4 +1,3 @@
-'MachineID', 'RMSE', 'HiddenSize', 'Learningrate', 'L2Regulasation', 'ActivationFunction'
 'cpu_1095481', 0.043, 4, 0.015984149618070882, 0.0, <class 'pybrain.structure.modules.tanhlayer.TanhLayer'>
 'cpu_124596184', 0.043587348962474147, 4, 0.073506911011291337, 1.5043789324639934e-07, <class 'pybrain.structure.modules.tanhlayer.TanhLayer'>
 'cpu_1268205', 0.042064195212572875, 5, 0.05372581697602756, 0.0, <class 'pybrain.structure.modules.tanhlayer.TanhLayer'>
