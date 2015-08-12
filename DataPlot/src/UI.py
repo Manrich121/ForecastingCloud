@@ -29,8 +29,10 @@ from pybrain.structure.modules import SigmoidLayer, LinearLayer
 # Main definition - constants
 menu_actions  = {}  
 methods_dict = {}
-INPUT = 'd:/data/'
-OUTPUT = 'd:/data/'
+# INPUT = 'd:/data/'
+# OUTPUT = 'd:/data/'
+INPUT = 'd:/Wikipage data/'
+OUTPUT = 'd:/Wikipage data/'
 TYPE = None
 METHOD = None
 
@@ -46,7 +48,11 @@ def performsSlidingWindowForecast(params, minpercentile=5, step=30, input_window
 #     data = np.genfromtxt(filename)
 #     data = data/np.max(data)
 
-    data = np.nan_to_num(np.genfromtxt(filename, delimiter=',', skip_header=1)[:,1]).ravel()
+    if TYPE == 'pageviews':
+        data = np.nan_to_num(np.genfromtxt(filename)).ravel()
+        data = data/np.max(data)
+    else:
+        data = np.nan_to_num(np.genfromtxt(filename, delimiter=',', skip_header=1)[:,1]).ravel()
     minimum = np.percentile(data,minpercentile)
     N = len(data)
     result = []
@@ -173,7 +179,12 @@ def performEvaluations(params, train_window = 3000, overload_dur = 5, overload_p
     
     cur_results = []
     forecasts = np.nan_to_num(np.genfromtxt(INPUT+TYPE+"_"+METHOD+"/" + filename, delimiter=',',usecols=range(0,30))).ravel() # ,usecols=range(0,30)
-    truevals = np.genfromtxt(INPUT+TYPE+"/"+filename, delimiter=',',skip_header=1)[:train_window+len(forecasts),1]
+    
+    if TYPE == 'pageviews':
+        truevals = np.genfromtxt(INPUT+TYPE+"/"+filename)[:train_window+len(forecasts)]
+        truevals = truevals/np.max(truevals)
+    else:
+        truevals = np.genfromtxt(INPUT+TYPE+"/"+filename, delimiter=',',skip_header=1)[:train_window+len(forecasts),1]
     
     # Normalize
 #     truevals = np.divide(truevals, np.max(truevals))
