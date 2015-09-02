@@ -29,10 +29,10 @@ from pybrain.structure.modules import SigmoidLayer, LinearLayer
 # Main definition - constants
 menu_actions  = {}  
 methods_dict = {}
-# INPUT = 'd:/data/'
-# OUTPUT = 'd:/data/'
-INPUT = 'd:/Wikipage data/'
-OUTPUT = 'd:/Wikipage data/'
+INPUT = 'd:/data/'
+OUTPUT = 'd:/data/'
+# INPUT = 'd:/Wikipage data/'
+# OUTPUT = 'd:/Wikipage data/'
 TYPE = None
 METHOD = None
 
@@ -48,8 +48,8 @@ def performsSlidingWindowForecast(params, minpercentile=5, step=30, input_window
 #     data = np.genfromtxt(filename)
 #     data = data/np.max(data)
 
-    if TYPE == 'pageviews':
-        data = np.nan_to_num(np.genfromtxt(filename)).ravel()
+    if TYPE == 'pageviews' or TYPE == 'network':
+        data = np.nan_to_num(np.genfromtxt(filename.replace(".csv",""))).ravel()
         data = data/np.max(data)
     else:
         data = np.nan_to_num(np.genfromtxt(filename, delimiter=',', skip_header=1)[:,1]).ravel()
@@ -73,15 +73,15 @@ def performsSlidingWindowForecast(params, minpercentile=5, step=30, input_window
             elif METHOD == 'press':
                 model = Press_model.Press_model(y)
             elif METHOD == 'agile':
-                model = Wavelet_model(y)
+                model = Wavelet_model.Wavelet_model(y)
             elif METHOD == 'fnn':
                 filename, METHOD, TYPE, OUTPUT, INPUT, curEta, curLmda = params[:7]
-                curMachine = filename.split('/')[-1]
+                curMachine = filename.split('/')[-1].replace(".csv",".xml")
                 if TYPE.startswith("memory"):
                     curMachine = curMachine.replace("memory", "cpu")
-                    model = Fnn_model.Fnn_model(data=data, machineID = curMachine, netPath="../data/"+TYPE.replace("memory", "cpu")+"_networks/"+curMachine.replace(".csv",".xml"), eta=curEta, lmda=curLmda)
+                    model = Fnn_model.Fnn_model(data=data, machineID = curMachine, netPath="../data/"+TYPE.replace("memory", "cpu")+"_networks/"+curMachine, eta=curEta, lmda=curLmda)
                 else:
-                    model = Fnn_model.Fnn_model(data=data, machineID = curMachine, netPath="../data/"+TYPE+"_networks/"+curMachine.replace(".csv",".xml"), eta=curEta, lmda=curLmda)
+                    model = Fnn_model.Fnn_model(data=data, machineID = curMachine, netPath="../data/"+TYPE+"_networks/"+curMachine, eta=curEta, lmda=curLmda)
             elif METHOD == 'rnn':
                 filename, METHOD, TYPE, OUTPUT, INPUT, curEta, curLmda = params[:7]
                 curMachine = filename.split('/')[-1]
@@ -104,15 +104,18 @@ def performsSlidingWindowForecast(params, minpercentile=5, step=30, input_window
             else:
                 y = data[strIndex:strIndex+input_window]
             model.update(y)
-              
-        y_pred = np.atleast_2d(model.predict(predic_window))
+        
+        p = model.predict(predic_window)
+        y_pred = np.atleast_2d(p)
+        y_pred = np.reshape(y_pred, (predic_window,1))         
         y_pred[y_pred[:,0]<0,0] = minimum
         result.append(y_pred[:,0])
     f = filename.split('/')[-1]
     fileutils.writeCSV(OUTPUT+TYPE+"_"+METHOD+"/"+f, np.atleast_2d(result))
     print filename, "complete!"
      
-def ensembleModel(params, types=['ma','ar','fnn'], step=30, input_window=3000):
+def ensembleModel(params, types=['ma','ar','fnn','agile'], step=30, input_window=3000):
+    input_size = len(types)
     filename, METHOD, TYPE, OUTPUT = params[0:4]
     filename = filename.split('/')[-1]
     
@@ -128,20 +131,21 @@ def ensembleModel(params, types=['ma','ar','fnn'], step=30, input_window=3000):
         
     average_fc = np.average(combine_model, axis=0)
     
-    if METHOD == 'avg':
+    if METHOD == 'avg4':
         fileutils.writeCSV(OUTPUT+TYPE+"_"+METHOD+"/"+filename, np.atleast_2d(average_fc).reshape([178,30]))
         print filename, "complete"
         return
-    if METHOD == 'combo':
-        training = SupervisedDataSet(3, 1)
+    if METHOD == 'combo4':
+        training = SupervisedDataSet(input_size, 1)
         for i in range(step):
-            training.appendLinked([combine_model[0][i], combine_model[1][i], combine_model[2][i]], truevals[i+input_window])
+            
+            training.appendLinked([combine_model[t][i] for t in range(input_size)], truevals[i+input_window])
             
         besterr = eval.calc_RMSE(truevals[input_window:input_window+step], average_fc[:step])
         bestNet = None
         
         for i in range(50):
-            net = buildNetwork(3, 2, 1, hiddenclass=LinearLayer, bias=False)
+            net = buildNetwork(input_size, 2, 1, hiddenclass=LinearLayer, bias=False)
             trainer = BackpropTrainer(net, training, learningrate=0.001, shuffle=False)
             trainer.trainEpochs(200)
     
@@ -156,10 +160,10 @@ def ensembleModel(params, types=['ma','ar','fnn'], step=30, input_window=3000):
             combo_fc = average_fc
         else:
             for i in range(step, len(combine_model[0]), step):
-                training = SupervisedDataSet(3, 1)
+                training = SupervisedDataSet(input_size, 1)
                 for j in range(i,i+step):
-                    combo_fc.append(bestNet.activate([combine_model[0][j], combine_model[1][j], combine_model[2][j]])[0])
-                    training.appendLinked([combine_model[0][j], combine_model[1][j], combine_model[2][j]], truevals[j+input_window])
+                    combo_fc.append(bestNet.activate([combine_model[t][j] for t in range(input_size)])[0])
+                    training.appendLinked([combine_model[t][j] for t in range(input_size)], truevals[j+input_window])
                 trainer = BackpropTrainer(bestNet, training, learningrate=0.01, shuffle=False)
                 trainer.trainEpochs(1)
                 
@@ -167,7 +171,7 @@ def ensembleModel(params, types=['ma','ar','fnn'], step=30, input_window=3000):
         minimum = np.percentile(truevals,5)
         result[0,result[0,:] < minimum] = minimum 
         
-        fileutils.writeCSV(OUTPUT+TYPE+"_combo/"+filename, result)
+        fileutils.writeCSV(OUTPUT+TYPE+"_combo4/"+filename, result)
         print filename, "complete"
     
     
@@ -180,7 +184,8 @@ def performEvaluations(params, train_window = 3000, overload_dur = 5, overload_p
     cur_results = []
     forecasts = np.nan_to_num(np.genfromtxt(INPUT+TYPE+"_"+METHOD+"/" + filename, delimiter=',',usecols=range(0,30))).ravel() # ,usecols=range(0,30)
     
-    if TYPE == 'pageviews':
+    if TYPE == 'pageviews' or TYPE == 'network':
+        filename = filename.replace(".csv","")
         truevals = np.genfromtxt(INPUT+TYPE+"/"+filename)[:train_window+len(forecasts)]
         truevals = truevals/np.max(truevals)
     else:
@@ -217,8 +222,8 @@ methods_dict = {
     '8': 'rnn', 
     '9': 'entwine', 
     '10': 'ma',
-    '11': 'avg',
-    '12': 'combo',       
+    '11': 'avg4',
+    '12': 'combo4',       
 }
  
 # =======================
@@ -266,8 +271,8 @@ def main():
     print "8. RNN Model"
     print "9. Entwine Model"
     print "10. Moving Average"
-    print "11. Average combo Model"
-    print "12. FFNN combo Model"
+    print "11. Average combo4 Model"
+    print "12. FFNN combo4 Model"
     print "0. Quit"
     choice = raw_input(" >>  ")
     ch = choice.lower();
@@ -318,17 +323,17 @@ def main():
             for f in files:
                 params.append([f, METHOD, TYPE, OUTPUT, INPUT])
         
-        if METHOD == 'avg' or METHOD == 'combo':
+        if METHOD == 'avg4' or METHOD == 'combo4':
 #             ensembleModel(params[0])
             pool.map(ensembleModel,params)
             pool.close()
             pool.join()
         else:
-    #         performsSlidingWindowForecast(params[0])
+#             performsSlidingWindowForecast(params[0])
             pool.map(performsSlidingWindowForecast, params)
             pool.close()
             pool.join()
-             
+               
         pool = ThreadPool(4)
         results = pool.map(performEvaluations, params)
         pool.close()
