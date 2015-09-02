@@ -6,8 +6,8 @@ import fileutils
 import numpy as np
 
 
-METHOD = "ar"
-TYPE = "memory5"
+METHOD = "combo"
+TYPE = "cpu"
 
 def performEvaluations(filename, train_window = 3000, overload_dur = 5, overload_percentile = 70, steps=30):
         

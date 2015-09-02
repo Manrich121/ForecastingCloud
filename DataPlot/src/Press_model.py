@@ -29,7 +29,6 @@ class Press_model(object):
         @type corr_tresh: float
         @param mean_ratio: 
         '''
-        maximum = np.max(data)
         self.history = data[:]
         self.data = data[:]
         self.corr_thres = corr_tresh
@@ -39,7 +38,7 @@ class Press_model(object):
         self.N = data.shape[0]
         self.contain_pat = False
         self.warp = False
-        self.markov = Markov_model(data=data, maximum=maximum)
+        self.markov = Markov_model(data=data)
         
     def fit(self):
         '''
@@ -113,6 +112,11 @@ class Press_model(object):
                 forecasts = self.sig[:fc]
         else:
             return self.markov.predict(fc)
+        if forecasts.shape[0]<fc:
+            f = np.zeros((fc))
+            for i in range(forecasts.shape[0]):
+                f[i] = forecasts[i]
+            forecasts = f
         return forecasts
     
 def getWarpIndex(x, y):

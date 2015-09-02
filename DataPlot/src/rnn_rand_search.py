@@ -58,17 +58,19 @@ def trainFunc(params):
 
 if __name__ == '__main__':
     
-    files =  fileutils.getFilelist("d:/data/cpu5")
+    files =  fileutils.getFilelist("D:/Wikipage data/network")
 #     target_files = ['cpu_1095481','cpu_1303745','cpu_1335782','cpu_1338948','cpu_1442486585','cpu_155313295','cpu_1664088958','cpu_317488701','cpu_317499484','cpu_3858945898','cpu_4304743890','cpu_4820238819','cpu_5796442','cpu_660404','cpu_711355','cpu_717319','cpu_904514','cpu_905062','cpu_907812']
 
-    for machine in files[:]:   
+    for machine in files[30:]:   
 #     for machine in target_files[16:19]:
         
-        machine = machine.strip('.csv').split('/')[-1]
+        machine = machine.replace('.csv','').split('/')[-1]
     #     machine = 'cpu_1095481'
         print(machine)
         
-        data = np.genfromtxt("d:/data/cpu5/"+machine+".csv",skip_header=1, delimiter=',',usecols=(1))
+#         data = np.genfromtxt("d:/data/cpu5/"+machine+".csv",skip_header=1, delimiter=',',usecols=(1))
+        data = np.nan_to_num(np.genfromtxt("D:/Wikipage data/network/"+machine)).ravel()
+        data = data/np.max(data)
         
         miniters=100
         maxiters=1000 
@@ -157,8 +159,8 @@ if __name__ == '__main__':
 #     #     plt.title('Forecasts')
 #         plt.show()
    
-        NetworkWriter.writeToFile(bestnet, '../data/cpu5_rnn_networks/'+machine+".xml")
-        with open('../data/cpu5_rnn_networks/hyperparams.csv', mode='a') as f:
+        NetworkWriter.writeToFile(bestnet, '../data/network_rnn_networks/'+machine+".xml")
+        with open('../data/network_rnn_networks/hyperparams.csv', mode='a') as f:
             print([machine,besterr,besthparams[1],besthparams[3],besthparams[4],besthparams[2]], sep=',', end='\n', file=f)
     
     

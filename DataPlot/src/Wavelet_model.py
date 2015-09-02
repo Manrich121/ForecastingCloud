@@ -56,7 +56,7 @@ class Wavelet_model(object):
         self.coefs = pywt.wavedec(self.data, wavelet=self.bestType, level=self.levels)
         for i in range(len(self.order)):
 #             model = AR_model(approx_levels[i], order=self.order[i])
-            model = Markov_model(approx_levels[i], maximum=np.max(approx_levels[i]))
+            model = Markov_model(approx_levels[i])
             model.fit()
             self.models.append(model)
         
