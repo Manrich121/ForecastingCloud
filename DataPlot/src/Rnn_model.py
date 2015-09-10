@@ -67,9 +67,9 @@ class Rnn_model(object):
         '''
         unknown = self.data[self.end_train-self.INPUT_SIZE:self.end_train]
         forecasts = []
-        for i in range(self.INPUT_SIZE):
-            fc = self.net.activate(unknown)
-            forecasts.append(fc)
-            unknown = np.append(unknown[1:], fc)
+        for i in range(fc):
+            f = self.net.activate(unknown)
+            forecasts.append(f)
+            unknown = np.append(unknown[1:], f)
             
         return np.array(forecasts)

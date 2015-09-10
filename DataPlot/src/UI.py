@@ -30,6 +30,7 @@ from pybrain.structure.modules import SigmoidLayer, LinearLayer
 menu_actions  = {}  
 methods_dict = {}
 INPUT = 'd:/data/'
+# OUTPUT = 'D:/15_sample_results/'
 OUTPUT = 'd:/data/'
 # INPUT = 'd:/Wikipage data/'
 # OUTPUT = 'd:/Wikipage data/'
@@ -57,7 +58,7 @@ def performsSlidingWindowForecast(params, minpercentile=5, step=30, input_window
     N = len(data)
     result = []
     print filename, "started..."
-    for strIndex in range(0,N-input_window - predic_window, step):
+    for strIndex in range(0,N-input_window - predic_window, predic_window):
         if strIndex == 0:
             y = data[:input_window]
             if METHOD == 'ar':
@@ -87,9 +88,9 @@ def performsSlidingWindowForecast(params, minpercentile=5, step=30, input_window
                 curMachine = filename.split('/')[-1]
                 if TYPE.startswith("memory"):
                     curMachine = curMachine.replace("memory", "cpu")
-                    model = Fnn_model.Fnn_model(data=data, machineID = curMachine, netPath="../data/"+TYPE.replace("memory", "cpu")+"_networks/"+curMachine.replace(".csv",".xml"), eta=curEta, lmda=curLmda)
+                    model = Rnn_model.Rnn_model(data=data, machineID = curMachine, netPath="../data/"+TYPE.replace("memory", "cpu")+"_networks/"+curMachine.replace(".csv",".xml"), eta=curEta, lmda=curLmda)
                 else:
-                    model = Fnn_model.Fnn_model(data=data, machineID = curMachine, netPath="../data/"+TYPE+"_rnn_networks/"+curMachine.replace(".csv",".xml"), eta=curEta, lmda=curLmda)
+                    model = Rnn_model.Rnn_model(data=data, machineID = curMachine, netPath="../data/"+TYPE+"_rnn_networks/"+curMachine.replace(".csv",".xml"), eta=curEta, lmda=curLmda)
             elif METHOD == 'entwine':
                 filename, METHOD, TYPE, OUTPUT, INPUT, curEta, curLmda = params[:7]
                 curMachine = filename.split('/')[-1]
@@ -175,14 +176,14 @@ def ensembleModel(params, types=['ma','ar','fnn','agile'], step=30, input_window
         print filename, "complete"
     
     
-def performEvaluations(params, train_window = 3000, overload_dur = 5, overload_percentile = 70, steps=30):
+def performEvaluations(params, train_window = 3000, overload_dur = 5, overload_percentile = 70, steps=30, predic_window=30):
     
     filename, METHOD, TYPE, OUTPUT, INPUT = params[:5]
     filename = filename.split('/')[-1]
     print filename, "started..."
     
     cur_results = []
-    forecasts = np.nan_to_num(np.genfromtxt(INPUT+TYPE+"_"+METHOD+"/" + filename, delimiter=',',usecols=range(0,30))).ravel() # ,usecols=range(0,30)
+    forecasts = np.nan_to_num(np.genfromtxt(INPUT+TYPE+"_"+METHOD+"/" + filename, delimiter=',',usecols=range(0,predic_window))).ravel() # ,usecols=range(0,30)
     
     if TYPE == 'pageviews' or TYPE == 'network':
         filename = filename.replace(".csv","")
@@ -333,7 +334,7 @@ def main():
             pool.map(performsSlidingWindowForecast, params)
             pool.close()
             pool.join()
-               
+                
         pool = ThreadPool(4)
         results = pool.map(performEvaluations, params)
         pool.close()
