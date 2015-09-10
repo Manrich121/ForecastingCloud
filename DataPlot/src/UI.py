@@ -30,15 +30,15 @@ from pybrain.structure.modules import SigmoidLayer, LinearLayer
 menu_actions  = {}  
 methods_dict = {}
 INPUT = 'd:/data/'
-# OUTPUT = 'D:/15_sample_results/'
-OUTPUT = 'd:/data/'
+OUTPUT = 'D:/15_sample_results/'
+# OUTPUT = 'd:/data/'
 # INPUT = 'd:/Wikipage data/'
 # OUTPUT = 'd:/Wikipage data/'
 TYPE = None
 METHOD = None
 
 
-def performsSlidingWindowForecast(params, minpercentile=5, step=30, input_window=3000, predic_window=30):
+def performsSlidingWindowForecast(params, minpercentile=5, step=30, input_window=3000, predic_window=15):
     '''
     Input window = 250 hours = 250*12 = 3000 
     look ahead window 60 samples =  5 hours = 720min/5 = 60
@@ -48,7 +48,7 @@ def performsSlidingWindowForecast(params, minpercentile=5, step=30, input_window
 #Wikidata
 #     data = np.genfromtxt(filename)
 #     data = data/np.max(data)
-
+    lastFc = None
     if TYPE == 'pageviews' or TYPE == 'network':
         data = np.nan_to_num(np.genfromtxt(filename.replace(".csv",""))).ravel()
         data = data/np.max(data)
@@ -108,8 +108,16 @@ def performsSlidingWindowForecast(params, minpercentile=5, step=30, input_window
         
         p = model.predict(predic_window)
         y_pred = np.atleast_2d(p)
-        y_pred = np.reshape(y_pred, (predic_window,1))         
+        y_pred = np.reshape(y_pred, (predic_window,1)) 
+        
+        if METHOD == 'rnn':
+            if lastFc is not None:
+                y_pred[0,0] = lastFc 
+            lastFc = y_pred[-1,0]
+
         y_pred[y_pred[:,0]<0,0] = minimum
+        
+        
         result.append(y_pred[:,0])
     f = filename.split('/')[-1]
     fileutils.writeCSV(OUTPUT+TYPE+"_"+METHOD+"/"+f, np.atleast_2d(result))
@@ -176,7 +184,7 @@ def ensembleModel(params, types=['ma','ar','fnn','agile'], step=30, input_window
         print filename, "complete"
     
     
-def performEvaluations(params, train_window = 3000, overload_dur = 5, overload_percentile = 70, steps=30, predic_window=30):
+def performEvaluations(params, train_window = 3000, overload_dur = 5, overload_percentile = 70, steps=30, predic_window=15):
     
     filename, METHOD, TYPE, OUTPUT, INPUT = params[:5]
     filename = filename.split('/')[-1]
@@ -334,7 +342,7 @@ def main():
             pool.map(performsSlidingWindowForecast, params)
             pool.close()
             pool.join()
-                
+                 
         pool = ThreadPool(4)
         results = pool.map(performEvaluations, params)
         pool.close()
