@@ -71,4 +71,4 @@ class Fnn_model(object):
             forecasts.append(f)
             unknown = np.append(unknown[1:], f)
             
-        return forecasts
+        return np.array(forecasts)

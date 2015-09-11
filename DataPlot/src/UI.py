@@ -30,15 +30,15 @@ from pybrain.structure.modules import SigmoidLayer, LinearLayer
 menu_actions  = {}  
 methods_dict = {}
 INPUT = 'd:/data/'
-OUTPUT = 'D:/15_sample_results/'
-# OUTPUT = 'd:/data/'
+# OUTPUT = 'D:/15_sample_results/'
+OUTPUT = 'd:/data/'
 # INPUT = 'd:/Wikipage data/'
 # OUTPUT = 'd:/Wikipage data/'
 TYPE = None
 METHOD = None
 
 
-def performsSlidingWindowForecast(params, minpercentile=5, step=30, input_window=3000, predic_window=15):
+def performsSlidingWindowForecast(params, minpercentile=5, training_window=30, input_window=3000, predic_window=30):
     '''
     Input window = 250 hours = 250*12 = 3000 
     look ahead window 60 samples =  5 hours = 720min/5 = 60
@@ -62,9 +62,9 @@ def performsSlidingWindowForecast(params, minpercentile=5, step=30, input_window
         if strIndex == 0:
             y = data[:input_window]
             if METHOD == 'ar':
-                model = AR_model.AR_model(y, order=30)
+                model = AR_model.AR_model(y, order=training_window)
             elif METHOD == 'ma':
-                model = MA_model.MA_model(y,order=30)
+                model = MA_model.MA_model(y,order=training_window)
             elif METHOD == 'hw':
                 model = HW_model.HW_model(y, minimum, 'additive')
             elif METHOD == 'markov1':
@@ -100,8 +100,8 @@ def performsSlidingWindowForecast(params, minpercentile=5, step=30, input_window
                 
             model.fit()
         else:
-            if METHOD == 'press' or METHOD == 'markov':
-                y = data[input_window + strIndex - step:input_window + strIndex]
+            if METHOD == 'press':
+                y = data[input_window + strIndex - predic_window:input_window + strIndex]
             else:
                 y = data[strIndex:strIndex+input_window]
             model.update(y)
@@ -116,7 +116,6 @@ def performsSlidingWindowForecast(params, minpercentile=5, step=30, input_window
             lastFc = y_pred[-1,0]
 
         y_pred[y_pred[:,0]<0,0] = minimum
-        
         
         result.append(y_pred[:,0])
     f = filename.split('/')[-1]
@@ -184,7 +183,7 @@ def ensembleModel(params, types=['ma','ar','fnn','agile'], step=30, input_window
         print filename, "complete"
     
     
-def performEvaluations(params, train_window = 3000, overload_dur = 5, overload_percentile = 70, steps=30, predic_window=15):
+def performEvaluations(params, train_window = 3000, overload_dur = 5, overload_percentile = 70, steps=30, predic_window=30):
     
     filename, METHOD, TYPE, OUTPUT, INPUT = params[:5]
     filename = filename.split('/')[-1]
