@@ -29,11 +29,11 @@ from pybrain.structure.modules import SigmoidLayer, LinearLayer
 # Main definition - constants
 menu_actions  = {}  
 methods_dict = {}
-# INPUT = 'd:/data/'
+INPUT = 'd:/data/'
 # OUTPUT = 'D:/15_sample_results/'
-# OUTPUT = 'd:/data/'
-INPUT = 'd:/Wikipage data/'
-OUTPUT = 'd:/Wikipage data/'
+OUTPUT = 'd:/data/'
+# INPUT = 'd:/Wikipage data/'
+# OUTPUT = 'd:/Wikipage data/'
 TYPE = None
 METHOD = None
 
