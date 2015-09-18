@@ -143,7 +143,7 @@ def ensembleModel(params, types=['ma','ar','fnn','agile'], step=30, input_window
         fileutils.writeCSV(OUTPUT+TYPE+"_"+METHOD+"/"+filename, np.atleast_2d(average_fc).reshape([178,30]))
         print filename, "complete"
         return
-    if METHOD == 'combo4':
+    if METHOD == 'combo4' or METHOD =='wa':
         training = SupervisedDataSet(input_size, 1)
         for i in range(step):
             
@@ -152,8 +152,11 @@ def ensembleModel(params, types=['ma','ar','fnn','agile'], step=30, input_window
         besterr = eval.calc_RMSE(truevals[input_window:input_window+step], average_fc[:step])
         bestNet = None
         
-        for i in range(50):
-            net = buildNetwork(input_size, 2, 1, hiddenclass=LinearLayer, bias=False)
+        for i in range(80):
+            if METHOD == 'wa':
+                net = buildNetwork(input_size, 1, hiddenclass=LinearLayer, bias=False)
+            else:
+                net = buildNetwork(input_size, 2, 1, hiddenclass=LinearLayer, bias=False)
             trainer = BackpropTrainer(net, training, learningrate=0.001, shuffle=False)
             trainer.trainEpochs(200)
     
@@ -179,7 +182,7 @@ def ensembleModel(params, types=['ma','ar','fnn','agile'], step=30, input_window
         minimum = np.percentile(truevals,5)
         result[0,result[0,:] < minimum] = minimum 
         
-        fileutils.writeCSV(OUTPUT+TYPE+"_combo4/"+filename, result)
+        fileutils.writeCSV(OUTPUT+TYPE+"_"+METHOD+"/"+filename, result)
         print filename, "complete"
     
     
@@ -231,7 +234,8 @@ methods_dict = {
     '9': 'entwine', 
     '10': 'ma',
     '11': 'avg4',
-    '12': 'combo4',       
+    '12': 'combo4',
+    '13': 'wa',     
 }
  
 # =======================
@@ -281,6 +285,7 @@ def main():
     print "10. Moving Average"
     print "11. Average combo4 Model"
     print "12. FFNN combo4 Model"
+    print "13. Weighted Average model"
     print "0. Quit"
     choice = raw_input(" >>  ")
     ch = choice.lower();
@@ -331,7 +336,7 @@ def main():
             for f in files:
                 params.append([f, METHOD, TYPE, OUTPUT, INPUT])
         
-        if METHOD == 'avg4' or METHOD == 'combo4':
+        if METHOD == 'avg4' or METHOD == 'combo4' or METHOD == 'wa':
 #             ensembleModel(params[0])
             pool.map(ensembleModel,params)
             pool.close()
