@@ -152,13 +152,13 @@ def ensembleModel(params, types=['ma','ar','fnn','agile'], step=30, input_window
         besterr = eval.calc_RMSE(truevals[input_window:input_window+step], average_fc[:step])
         bestNet = None
         
-        for i in range(80):
+        for i in range(50):
             if METHOD == 'wa':
                 net = buildNetwork(input_size, 1, hiddenclass=LinearLayer, bias=False)
             else:
                 net = buildNetwork(input_size, 2, 1, hiddenclass=LinearLayer, bias=False)
             trainer = BackpropTrainer(net, training, learningrate=0.001, shuffle=False)
-            trainer.trainEpochs(200)
+            trainer.trainEpochs(100)
     
             err = eval.calc_RMSE(truevals[input_window:input_window+step], net.activateOnDataset(training))
             if err < besterr:
@@ -176,7 +176,7 @@ def ensembleModel(params, types=['ma','ar','fnn','agile'], step=30, input_window
                     combo_fc.append(bestNet.activate([combine_model[t][j] for t in range(input_size)])[0])
                     training.appendLinked([combine_model[t][j] for t in range(input_size)], truevals[j+input_window])
                 trainer = BackpropTrainer(bestNet, training, learningrate=0.01, shuffle=False)
-                trainer.trainEpochs(1)
+                trainer.trainEpochs(2)
                 
         result  = np.atleast_2d(combo_fc).reshape([178,30])
         minimum = np.percentile(truevals,5)
@@ -186,14 +186,14 @@ def ensembleModel(params, types=['ma','ar','fnn','agile'], step=30, input_window
         print filename, "complete"
     
     
-def performEvaluations(params, train_window = 3000, overload_dur = 5, overload_percentile = 70, steps=30, predic_window=30):
+def performEvaluations(params, train_window = 3000, overload_dur = 5, overload_percentile = 70, predic_window=30):
     
     filename, METHOD, TYPE, OUTPUT, INPUT = params[:5]
     filename = filename.split('/')[-1]
-    print filename, "started..."
+    print OUTPUT+TYPE+"_"+METHOD+"/" + filename, "started..."
     
     cur_results = []
-    forecasts = np.nan_to_num(np.genfromtxt(INPUT+TYPE+"_"+METHOD+"/" + filename, delimiter=',',usecols=range(0,predic_window))).ravel() # ,usecols=range(0,30)
+    forecasts = np.nan_to_num(np.genfromtxt(OUTPUT+TYPE+"_"+METHOD+"/" + filename, delimiter=',',usecols=range(0,predic_window))).ravel() # ,usecols=range(0,30)
     
     if TYPE == 'pageviews' or TYPE == 'network':
         filename = filename.replace(".csv","")
@@ -342,11 +342,12 @@ def main():
             pool.close()
             pool.join()
         else:
+#             print "skip"
 #             performsSlidingWindowForecast(params[0])
             pool.map(performsSlidingWindowForecast, params)
             pool.close()
             pool.join()
-                 
+                  
         pool = ThreadPool(4)
         results = pool.map(performEvaluations, params)
         pool.close()
