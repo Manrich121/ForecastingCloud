@@ -46,6 +46,7 @@ class Fnn_model(object):
         # Increment training indexes 
         self.str_train = self.end_train
         self.end_train += self.INPUT_SIZE
+#         self.end_train += 15
         if self.end_train > len(self.data):
             self.end_train = len(self.data)
         self.fit()
