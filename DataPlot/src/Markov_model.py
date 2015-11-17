@@ -31,6 +31,7 @@ class Markov_model(object):
         '''
         Initialises the transition matrix using the frequency of occurance and Laplace method
         '''
+        self.state_occurance_count = np.zeros((self.M,1))
         if self.order == 1:
             for n in range(self.data.shape[0]-1):
                 i = self.states[n]
@@ -39,8 +40,11 @@ class Markov_model(object):
                     j = self.M-1
                 if i == self.M:
                     i = self.M-1    
+#                 Count number of occurances
+                self.state_occurance_count[i,0] += 1
                 
                 self.transcount[i, j] += 1
+#             self.transmat = np.nan_to_num(self.transcount / self.state_occurance_count)
             self.transmat = np.nan_to_num(self.transcount / np.tile(np.sum(self.transcount, axis=1), (self.M,1)).T)
         elif self.order == 2:
             M = self.M
