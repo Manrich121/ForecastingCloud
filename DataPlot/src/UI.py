@@ -38,7 +38,7 @@ TYPE = None
 METHOD = None
 
 
-def performsSlidingWindowForecast(params, minpercentile=5, training_window=30, input_window=3000, predic_window=30):
+def performsSlidingWindowForecast(params, minpercentile=5, order=16, training_window=30, input_window=3000, predic_window=30):
     '''
     Input window = 250 hours = 250*12 = 3000 
     look ahead window 60 samples =  5 hours = 720min/5 = 60
@@ -61,10 +61,10 @@ def performsSlidingWindowForecast(params, minpercentile=5, training_window=30, i
     for strIndex in range(0,N-input_window - predic_window, predic_window):
         if strIndex == 0:
             y = data[:input_window]
-            if METHOD == 'ar':
-                model = AR_model.AR_model(y, order=training_window)
+            if METHOD == 'ar2':
+                model = AR_model.AR_model(y, order=order)
             elif METHOD == 'ma':
-                model = MA_model.MA_model(y,order=training_window)
+                model = MA_model.MA_model(y,order=order)
             elif METHOD == 'hw':
                 model = HW_model.HW_model(y, minimum, 'additive')
             elif METHOD == 'markov1':
@@ -224,7 +224,7 @@ def exit():
  
 methods_dict = {
     '1': 'hw',
-    '2': 'ar',
+    '2': 'ar2',
     '3': 'markov1',
     '4': 'markov2',
     '5': 'press',
@@ -343,11 +343,11 @@ def main():
             pool.join()
         else:
 #             print "skip"
-#             performsSlidingWindowForecast(params[0])
+            performsSlidingWindowForecast(params[0])
             pool.map(performsSlidingWindowForecast, params)
             pool.close()
             pool.join()
-                  
+                   
         pool = ThreadPool(4)
         results = pool.map(performEvaluations, params)
         pool.close()
