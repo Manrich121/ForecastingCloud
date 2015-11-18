@@ -29,16 +29,21 @@ from pybrain.structure.modules import SigmoidLayer, LinearLayer
 # Main definition - constants
 menu_actions  = {}  
 methods_dict = {}
-INPUT = 'd:/data/'
+# INPUT = 'd:/data/'
+# OUTPUT = 'd:/data/'
 # OUTPUT = 'D:/15_sample_results/'
-OUTPUT = 'd:/data/'
+
 # INPUT = 'd:/Wikipage data/'
 # OUTPUT = 'd:/Wikipage data/'
+
+INPUT = 'D:/7h_data/'
+OUTPUT= 'D:/7h_data/'
+
 TYPE = None
 METHOD = None
 
 
-def performsSlidingWindowForecast(params, minpercentile=5, order=16, training_window=30, input_window=3000, predic_window=30):
+def performsSlidingWindowForecast(params, minpercentile=5, order=16, training_window=30, input_window=32, predic_window=1):
     '''
     Input window = 250 hours = 250*12 = 3000 
     look ahead window 60 samples =  5 hours = 720min/5 = 60
@@ -52,6 +57,8 @@ def performsSlidingWindowForecast(params, minpercentile=5, order=16, training_wi
     if TYPE == 'pageviews' or TYPE == 'network':
         data = np.nan_to_num(np.genfromtxt(filename.replace(".csv",""))).ravel()
         data = data/np.max(data)
+    elif OUTPUT == 'D:/7h_data/':
+        data = np.nan_to_num(np.genfromtxt(filename, dtype=float)).ravel()
     else:
         data = np.nan_to_num(np.genfromtxt(filename, delimiter=',', skip_header=1)[:,1]).ravel()
     minimum = np.percentile(data,minpercentile)
@@ -64,7 +71,7 @@ def performsSlidingWindowForecast(params, minpercentile=5, order=16, training_wi
             if METHOD == 'ar2':
                 model = AR_model.AR_model(y, order=order)
             elif METHOD == 'ma':
-                model = MA_model.MA_model(y,order=order)
+                model = MA_model.MA_model(y,order=30)
             elif METHOD == 'hw':
                 model = HW_model.HW_model(y, minimum, 'additive')
             elif METHOD == 'markov1':
@@ -344,16 +351,16 @@ def main():
         else:
 #             print "skip"
             performsSlidingWindowForecast(params[0])
-            pool.map(performsSlidingWindowForecast, params)
-            pool.close()
-            pool.join()
-                   
-        pool = ThreadPool(4)
-        results = pool.map(performEvaluations, params)
-        pool.close()
-        pool.join()
-        fileutils.writeCSV(OUTPUT+"results/"+TYPE+"_"+METHOD+".csv", results)
-        print METHOD+" "+ TYPE + " complete"
+#             pool.map(performsSlidingWindowForecast, params)
+#             pool.close()
+#             pool.join()
+#                    
+#         pool = ThreadPool(4)
+#         results = pool.map(performEvaluations, params)
+#         pool.close()
+#         pool.join()
+#         fileutils.writeCSV(OUTPUT+"results/"+TYPE+"_"+METHOD+".csv", results)
+#         print METHOD+" "+ TYPE + " complete"
           
         exit()
 # Main Program
