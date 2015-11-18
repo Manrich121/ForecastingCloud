@@ -29,21 +29,22 @@ from pybrain.structure.modules import SigmoidLayer, LinearLayer
 # Main definition - constants
 menu_actions  = {}  
 methods_dict = {}
+
 # INPUT = 'd:/data/'
 # OUTPUT = 'd:/data/'
 # OUTPUT = 'D:/15_sample_results/'
 
-# INPUT = 'd:/Wikipage data/'
-# OUTPUT = 'd:/Wikipage data/'
+INPUT = 'd:/Wikipage data/'
+OUTPUT = 'd:/Wikipage data/'
 
-INPUT = 'D:/7h_data/'
-OUTPUT= 'D:/7h_data/'
+# INPUT = 'D:/7h_data/'
+# OUTPUT= 'D:/7h_data/'
 
 TYPE = None
 METHOD = None
 
 
-def performsSlidingWindowForecast(params, minpercentile=5, order=16, training_window=30, input_window=32, predic_window=1):
+def performsSlidingWindowForecast(params, minpercentile=5, order=30, training_window=3000, input_window=3000, predic_window=30):
     '''
     Input window = 250 hours = 250*12 = 3000 
     look ahead window 60 samples =  5 hours = 720min/5 = 60
@@ -68,10 +69,10 @@ def performsSlidingWindowForecast(params, minpercentile=5, order=16, training_wi
     for strIndex in range(0,N-input_window - predic_window, predic_window):
         if strIndex == 0:
             y = data[:input_window]
-            if METHOD == 'ar2':
+            if METHOD == 'ar30':
                 model = AR_model.AR_model(y, order=order)
             elif METHOD == 'ma':
-                model = MA_model.MA_model(y,order=30)
+                model = MA_model.MA_model(y,order=order)
             elif METHOD == 'hw':
                 model = HW_model.HW_model(y, minimum, 'additive')
             elif METHOD == 'markov1':
@@ -206,6 +207,8 @@ def performEvaluations(params, train_window = 3000, overload_dur = 5, overload_p
         filename = filename.replace(".csv","")
         truevals = np.genfromtxt(INPUT+TYPE+"/"+filename)[:train_window+len(forecasts)]
         truevals = truevals/np.max(truevals)
+    elif OUTPUT == 'D:/7h_data/':
+        truevals = np.nan_to_num(np.genfromtxt(INPUT+TYPE+"/"+filename, dtype=float))[:train_window+len(forecasts)].ravel()
     else:
         truevals = np.genfromtxt(INPUT+TYPE+"/"+filename, delimiter=',',skip_header=1)[:train_window+len(forecasts),1]
     
@@ -231,7 +234,7 @@ def exit():
  
 methods_dict = {
     '1': 'hw',
-    '2': 'ar2',
+    '2': 'ar30',
     '3': 'markov1',
     '4': 'markov2',
     '5': 'press',
@@ -350,17 +353,17 @@ def main():
             pool.join()
         else:
 #             print "skip"
-            performsSlidingWindowForecast(params[0])
-#             pool.map(performsSlidingWindowForecast, params)
-#             pool.close()
-#             pool.join()
-#                    
-#         pool = ThreadPool(4)
-#         results = pool.map(performEvaluations, params)
-#         pool.close()
-#         pool.join()
-#         fileutils.writeCSV(OUTPUT+"results/"+TYPE+"_"+METHOD+".csv", results)
-#         print METHOD+" "+ TYPE + " complete"
+#             performsSlidingWindowForecast(params[0])
+            pool.map(performsSlidingWindowForecast, params)
+            pool.close()
+            pool.join()
+                    
+        pool = ThreadPool(4)
+        results = pool.map(performEvaluations, params)
+        pool.close()
+        pool.join()
+        fileutils.writeCSV(OUTPUT+"results/"+TYPE+"_"+METHOD+".csv", results)
+        print METHOD+" "+ TYPE + " complete"
           
         exit()
 # Main Program
