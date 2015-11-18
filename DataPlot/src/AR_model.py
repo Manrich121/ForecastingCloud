@@ -72,16 +72,28 @@ class AR_model(object):
         mu = np.mean(self.data)
         forecasts = np.zeros((window,1))
         x = np.zeros((1,self.Z))
+        
         for f in range(window):
-            for i in range(1,f+1):
-                x[0,i-1] = forecasts[f-i,0]
-            for t in range(self.Z-f):
-                x[0,t+f] = self.data[-(t+1)]
-            forecasts[f,0] = np.dot(x-mu, self.params) + mu  
+            if f == 0:
+                for i in range(self.Z):
+                    x[0,i] = self.data[-(i+1)]
+            elif f<self.Z:
+                for i in range(1,f+1):
+                    x[0,i-1] = forecasts[f-i,0]
+                for t in range(self.Z-f):
+                    x[0,t+f] = self.data[-(t+1)]
+            else:
+                for j in range(self.Z):
+                    x[0,j] = forecasts[f-j,0]
+    
+            forecasts[f,0] = np.dot(x-mu, self.params) + mu
+            
+#     OLD
+#         for f in range(window):
+#             for i in range(1,f+1):
+#                 x[0,i-1] = forecasts[f-i,0]
 #             for t in range(self.Z-f):
-#                 x[0,t] = self.data[-(t+1)]
-#             if f>0:
-#                 x[0,-f] = forecasts[f-1,0]
+#                 x[0,t+f] = self.data[-(t+1)]
 #             forecasts[f,0] = np.dot(x-mu, self.params) + mu
              
         return forecasts
