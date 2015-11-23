@@ -30,12 +30,12 @@ from pybrain.structure.modules import SigmoidLayer, LinearLayer
 menu_actions  = {}  
 methods_dict = {}
 
-# INPUT = 'd:/data/'
-# OUTPUT = 'd:/data/'
+INPUT = 'd:/data/'
+OUTPUT = 'd:/data/'
 # OUTPUT = 'D:/15_sample_results/'
 
-INPUT = 'd:/Wikipage data/'
-OUTPUT = 'd:/Wikipage data/'
+# INPUT = 'd:/Wikipage data/'
+# OUTPUT = 'd:/Wikipage data/'
 
 # INPUT = 'D:/7h_data/'
 # OUTPUT= 'D:/7h_data/'
@@ -43,8 +43,12 @@ OUTPUT = 'd:/Wikipage data/'
 TYPE = None
 METHOD = None
 
+ORDER = 16
+TRAIN_WINDOW = 3000
+FORECAST_WINDOW = 30
 
-def performsSlidingWindowForecast(params, minpercentile=5, order=30, training_window=3000, input_window=3000, predic_window=30):
+
+def performsSlidingWindowForecast(params, minpercentile=5, order=ORDER, training_window=TRAIN_WINDOW, input_window=TRAIN_WINDOW, predic_window=FORECAST_WINDOW):
     '''
     Input window = 250 hours = 250*12 = 3000 
     look ahead window 60 samples =  5 hours = 720min/5 = 60
@@ -69,9 +73,9 @@ def performsSlidingWindowForecast(params, minpercentile=5, order=30, training_wi
     for strIndex in range(0,N-input_window - predic_window, predic_window):
         if strIndex == 0:
             y = data[:input_window]
-            if METHOD == 'ar30':
+            if METHOD == 'ar'+str(ORDER):
                 model = AR_model.AR_model(y, order=order)
-            elif METHOD == 'ma':
+            elif METHOD == 'ma'+str(ORDER):
                 model = MA_model.MA_model(y,order=order)
             elif METHOD == 'hw':
                 model = HW_model.HW_model(y, minimum, 'additive')
@@ -130,7 +134,7 @@ def performsSlidingWindowForecast(params, minpercentile=5, order=30, training_wi
     fileutils.writeCSV(OUTPUT+TYPE+"_"+METHOD+"/"+f, np.atleast_2d(result))
     print filename, "complete!"
      
-def ensembleModel(params, types=['ma','ar','fnn','agile'], step=30, input_window=3000):
+def ensembleModel(params, types=['ma','ar','fnn','agile'], step=FORECAST_WINDOW, input_window=TRAIN_WINDOW):
     input_size = len(types)
     filename, METHOD, TYPE, OUTPUT = params[0:4]
     filename = filename.split('/')[-1]
@@ -194,7 +198,7 @@ def ensembleModel(params, types=['ma','ar','fnn','agile'], step=30, input_window
         print filename, "complete"
     
     
-def performEvaluations(params, train_window = 3000, overload_dur = 5, overload_percentile = 70, predic_window=30):
+def performEvaluations(params, train_window = TRAIN_WINDOW, overload_dur = 5, overload_percentile = 70, predic_window=FORECAST_WINDOW):
     
     filename, METHOD, TYPE, OUTPUT, INPUT = params[:5]
     filename = filename.split('/')[-1]
@@ -234,7 +238,7 @@ def exit():
  
 methods_dict = {
     '1': 'hw',
-    '2': 'ar30',
+    '2': 'ar'+str(ORDER),
     '3': 'markov1',
     '4': 'markov2',
     '5': 'press',
@@ -242,7 +246,7 @@ methods_dict = {
     '7': 'fnn',  
     '8': 'rnn', 
     '9': 'entwine', 
-    '10': 'ma',
+    '10': 'ma'+str(ORDER),
     '11': 'avg4',
     '12': 'combo4',
     '13': 'wa',     
